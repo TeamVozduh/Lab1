@@ -5,9 +5,11 @@ namespace Lab1
 {
     public partial class MainWindow : Window
     {
+        private ViewModel viewModel;
         public MainWindow()
         {
             InitializeComponent();
+            viewModel = new ViewModel();
 
             operationsListBox.Items.Add("Операция 1");
             operationsListBox.Items.Add("Операция 2");
