@@ -7,6 +7,92 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
+        <!-- Левая половина -->
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="Выбор операции"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Margin="0,0,0,10"/>
+
+            <ListBox x:Name="operationsListBox"
+                     Grid.Row="1"
+                     SelectionChanged="OperationsListBox_SelectionChanged"/>
+        </Grid>
+
+        <!-- Правая половина -->
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="parametersHeader"
+                       Grid.Row="0"
+                       Text="Ввод параметров"
+                       FontSize="16"
+                       FontWeight="Bold"
+                       Margin="0,0,0,10"/>
+
+            <!-- Пустая область под параметры -->
+            <Grid Grid.Row="1"/>
+
+            <Button Grid.Row="2"
+                    Content="Выполнить"
+                    Height="30"
+                    Margin="0,10,0,0"/>
+
+            <!-- Индикаторы Pre / Post -->
+            <Grid Grid.Row="3" Margin="0,15,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Pre -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="Pre"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,5"/>
+                    <Rectangle x:Name="preIndicator"
+                               Width="20"
+                               Height="20"
+                               Fill="LightGray"
+                               Stroke="Gray"/>
+                </StackPanel>
+
+                <!-- Post -->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Post"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,5"/>
+                    <Rectangle x:Name="postIndicator"
+                               Width="20"
+                               Height="20"
+                               Fill="LightGray"
+                               Stroke="Gray"/>
+                </StackPanel>
+            </Grid>
+
+            <Button Grid.Row="4"
+                    Content="Показать контракт"
+                    Height="30"
+                    Margin="0,15,0,0"/>
+        </Grid>
     </Grid>
 </Window>

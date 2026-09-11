@@ -1,24 +1,27 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Lab1
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
+
+            operationsListBox.Items.Add("Операция 1");
+            operationsListBox.Items.Add("Операция 2");
+            operationsListBox.Items.Add("Операция 3");
+        }
+
+        private void OperationsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = operationsListBox.SelectedItem as string;
+
+            if (string.IsNullOrEmpty(selected))
+                parametersHeader.Text = "Ввод параметров";
+            else
+                parametersHeader.Text = "Ввод параметров. " + selected;
         }
     }
 }
