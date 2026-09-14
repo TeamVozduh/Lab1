@@ -47,13 +47,28 @@
                        FontWeight="Bold"
                        Margin="0,0,0,10"/>
 
-            <!-- Пустая область под параметры -->
-            <Grid Grid.Row="1"/>
+            <StackPanel x:Name="parametersGroup" 
+                        Grid.Row="1" 
+                        VerticalAlignment="Top" 
+                        Margin="0,0,0,10"
+                        Visibility="Collapsed">
+                
+                <CheckBox x:Name="chkCarExists" Content="Авто существует" Margin="0,5,0,0" 
+                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
+                <CheckBox x:Name="chkCarAvailable" Content="Авто доступно" Margin="0,5,0,0" 
+                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
+                <CheckBox x:Name="chkUserLoggedIn" Content="Пользователь авторизован" Margin="0,5,0,0" 
+                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
+                <CheckBox x:Name="chkActiveRent" Content="Пользователь имеет активную аренду" Margin="0,5,0,0" 
+                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
+
+            </StackPanel>
 
             <Button Grid.Row="2"
                     Content="Выполнить"
                     Height="30"
-                    Margin="0,10,0,0"/>
+                    Margin="0,10,0,0"
+                    Click="ExecuteButton_Click"/>
 
             <!-- Индикаторы Pre / Post -->
             <Grid Grid.Row="3" Margin="0,15,0,0">
