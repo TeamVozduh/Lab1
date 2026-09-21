@@ -27,5 +27,19 @@ namespace Lab1
         {
             return carRentOperation.getPre();
         }
+
+        public void ExecuteCarRent()
+        {
+            carRentOperation.RentCar(
+                carRentOperation.carExists,
+                carRentOperation.carAvailable,
+                carRentOperation.userLoggedIn,
+                carRentOperation.userHasActiveRent);
+        }
+
+        public bool GetCarRentPost()
+        {
+            return carRentOperation.getPost();
+        }
     }
 }

@@ -17,21 +17,21 @@
 
         public bool getPre()
         {
-            if (carExists && carAvailable && userLoggedIn && !userHasActiveRent)
-            {
-                return true;
-            }
-            return false;
+            return carExists && carAvailable && userLoggedIn && !userHasActiveRent;
         }
+
+        public bool getPost()
+        {
+            return !carAvailable && userHasActiveRent;
+        }
+
         public void RentCar(bool carExists, bool carAvailable, bool userLoggedIn, bool userHasActiveRent)
         {
             if (carExists && carAvailable && userLoggedIn && !userHasActiveRent)
             {
                 this.carAvailable = false;
                 this.userHasActiveRent = true;
-                return;
             }
-            return;
         }
     }
 }

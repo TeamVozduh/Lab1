@@ -44,12 +44,14 @@ namespace Lab1
                 {
                     parametersGroup.Visibility = Visibility.Collapsed;
                     preIndicator.Fill = Brushes.LightGray;
+                    postIndicator.Fill = Brushes.LightGray;
                 }
             }
         }
 
         private void CheckBox_StateChanged(object sender, RoutedEventArgs e)
         {
+            postIndicator.Fill = Brushes.LightGray;
             UpdatePreIndicator();
         }
 
@@ -76,7 +78,41 @@ namespace Lab1
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
+            var selected = operationsListBox.SelectedItem as string;
 
+            if (selected != "Начать аренду")
+            {
+                MessageBox.Show("Выберите операцию «Начать аренду».",
+                                "Информация",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                return;
+            }
+
+            // Проверка предусловия
+            if (!viewModel.GetCarRentPre())
+            {
+                MessageBox.Show("Предусловие не выполнено — операция не может быть выполнена.",
+                                "Ошибка",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
+                return;
+            }
+
+            // Выполнение операции
+            viewModel.ExecuteCarRent();
+
+            // Обновление галочек и индикаторов в интерфейсе
+            chkCarAvailable.IsChecked = false;
+            chkActiveRent.IsChecked = true;
+            UpdatePostIndicator();
+        }
+
+        private void UpdatePostIndicator()
+        {
+            postIndicator.Fill = viewModel.GetCarRentPost()
+                ? Brushes.Green
+                : Brushes.Red;
         }
     }
 }
