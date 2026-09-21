@@ -107,7 +107,7 @@
             <Button Grid.Row="4"
                     Content="Показать контракт"
                     Height="30"
-                    Margin="0,15,0,0"/>
+                    Margin="0,15,0,0" Click="ContractShowButton_Click"/>
         </Grid>
     </Grid>
 </Window>

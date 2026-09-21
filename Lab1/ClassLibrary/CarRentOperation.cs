@@ -1,18 +1,27 @@
-﻿namespace ClassLibrary
+﻿using System.Diagnostics;
+
+namespace ClassLibrary
 {
     public class CarRentOperation
     {
-        public bool carExists;
-        public bool carAvailable;
-        public bool userLoggedIn;
-        public bool userHasActiveRent;
+        private bool carExists;
+        private bool carAvailable;
+        private bool userLoggedIn;
+        private bool userHasActiveRent;
 
-        public CarRentOperation()
+        public bool CarExists => carExists;
+        public bool CarAvailable => carAvailable;
+        public bool UserLoggedIn => userLoggedIn;
+        public bool UserHasActiveRent => userHasActiveRent;
+
+        public CarRentOperation() { }
+
+        public void SetState(bool carExists, bool carAvailable, bool userLoggedIn, bool userHasActiveRent)
         {
-            carExists = false;
-            carAvailable = false;
-            userLoggedIn = false;
-            userHasActiveRent = false;
+            this.carExists = carExists;
+            this.carAvailable = carAvailable;
+            this.userLoggedIn = userLoggedIn;
+            this.userHasActiveRent = userHasActiveRent;
         }
 
         public bool getPre()
@@ -25,13 +34,20 @@
             return !carAvailable && userHasActiveRent;
         }
 
-        public void RentCar(bool carExists, bool carAvailable, bool userLoggedIn, bool userHasActiveRent)
+        public void RentCar()
         {
-            if (carExists && carAvailable && userLoggedIn && !userHasActiveRent)
-            {
-                this.carAvailable = false;
-                this.userHasActiveRent = true;
-            }
+            bool pre = getPre();
+
+            Guard.Requires(pre, "Нарушено предусловие RentCar: " +
+                                "carExists && carAvailable && userLoggedIn && !userHasActiveRent");
+
+            carAvailable = true;
+            userHasActiveRent = true;
+
+            bool post = getPost();
+
+            Debug.Assert(post, "Нарушено постусловие RentCar: " +
+                               "!carAvailable && userHasActiveRent");
         }
     }
 }

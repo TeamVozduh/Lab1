@@ -1,45 +1,43 @@
 ﻿using ClassLibrary;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lab1
 {
     class ViewModel
     {
-        private CarRentOperation carRentOperation;
+        private readonly CarRentOperation carRentOperation;
 
         public ViewModel()
         {
             carRentOperation = new CarRentOperation();
         }
 
-        public void UpdateCarRentVar(bool carExists, bool carAvailable, bool userLoggedIn, bool userHasActiveRent)
+        // --- Проброс read-only состояния модели ---
+        public bool CarExists => carRentOperation.CarExists;
+        public bool CarAvailable => carRentOperation.CarAvailable;
+        public bool UserLoggedIn => carRentOperation.UserLoggedIn;
+        public bool UserHasActiveRent => carRentOperation.UserHasActiveRent;
+
+        public void SetParameters(bool carExists, bool carAvailable, bool userLoggedIn, bool userHasActiveRent)
         {
-            carRentOperation.carExists = carExists;
-            carRentOperation.carAvailable = carAvailable;
-            carRentOperation.userLoggedIn = userLoggedIn;
-            carRentOperation.userHasActiveRent = userHasActiveRent;
+            carRentOperation.SetState(carExists, carAvailable, userLoggedIn, userHasActiveRent);
         }
+
         public bool GetCarRentPre()
         {
             return carRentOperation.getPre();
         }
 
-        public void ExecuteCarRent()
-        {
-            carRentOperation.RentCar(
-                carRentOperation.carExists,
-                carRentOperation.carAvailable,
-                carRentOperation.userLoggedIn,
-                carRentOperation.userHasActiveRent);
-        }
-
         public bool GetCarRentPost()
         {
             return carRentOperation.getPost();
+        }
+
+        public void ExecuteCarRent()
+        {
+            bool pre = carRentOperation.getPre();
+            Guard.Requires(pre, "ExecuteCarRent вызван при невыполненном предусловии");
+
+            carRentOperation.RentCar();
         }
     }
 }

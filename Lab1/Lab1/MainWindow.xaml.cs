@@ -7,6 +7,7 @@ namespace Lab1
     public partial class MainWindow : Window
     {
         private ViewModel viewModel;
+        private bool _isSyncingFromModel = false;
 
         public MainWindow()
         {
@@ -19,6 +20,7 @@ namespace Lab1
 
             parametersGroup.Visibility = Visibility.Collapsed;
             preIndicator.Fill = Brushes.LightGray;
+            postIndicator.Fill = Brushes.LightGray;
         }
 
         private void OperationsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -30,6 +32,7 @@ namespace Lab1
                 parametersHeader.Text = "Ввод параметров";
                 parametersGroup.Visibility = Visibility.Collapsed;
                 preIndicator.Fill = Brushes.LightGray;
+                postIndicator.Fill = Brushes.LightGray;
             }
             else
             {
@@ -51,6 +54,8 @@ namespace Lab1
 
         private void CheckBox_StateChanged(object sender, RoutedEventArgs e)
         {
+            if (_isSyncingFromModel) return;
+
             postIndicator.Fill = Brushes.LightGray;
             UpdatePreIndicator();
         }
@@ -62,18 +67,11 @@ namespace Lab1
             bool userLoggedIn = chkUserLoggedIn.IsChecked == true;
             bool userHasActiveRent = chkActiveRent.IsChecked == true;
 
-            viewModel.UpdateCarRentVar(carExists, carAvailable, userLoggedIn, userHasActiveRent);
+            viewModel.SetParameters(carExists, carAvailable, userLoggedIn, userHasActiveRent);
 
-            bool isPreConditionMet = viewModel.GetCarRentPre();
-
-            if (isPreConditionMet)
-            {
-                preIndicator.Fill = Brushes.Green;
-            }
-            else
-            {
-                preIndicator.Fill = Brushes.Red;
-            }
+            preIndicator.Fill = viewModel.GetCarRentPre()
+                ? Brushes.Green
+                : Brushes.Red;
         }
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
@@ -89,7 +87,6 @@ namespace Lab1
                 return;
             }
 
-            // Проверка предусловия
             if (!viewModel.GetCarRentPre())
             {
                 MessageBox.Show("Предусловие не выполнено — операция не может быть выполнена.",
@@ -99,20 +96,45 @@ namespace Lab1
                 return;
             }
 
-            // Выполнение операции
-            viewModel.ExecuteCarRent();
+            try
+            {
+                viewModel.ExecuteCarRent();
+            }
+            catch (System.InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Нарушение предусловия",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
-            // Обновление галочек и индикаторов в интерфейсе
-            chkCarAvailable.IsChecked = false;
-            chkActiveRent.IsChecked = true;
-            UpdatePostIndicator();
+            // Считываем Post из модели сразу после операции,
+            bool post = viewModel.GetCarRentPost();
+
+            // Синхронизируем интерфейс
+            _isSyncingFromModel = true;
+            chkCarAvailable.IsChecked = viewModel.CarAvailable;
+            chkActiveRent.IsChecked = viewModel.UserHasActiveRent;
+            _isSyncingFromModel = false;
+
+            // Обновляем индикатор Post
+            postIndicator.Fill = post ? Brushes.Green : Brushes.Red;
         }
 
-        private void UpdatePostIndicator()
+        private void ContractShowButton_Click(object sender, RoutedEventArgs e)
         {
-            postIndicator.Fill = viewModel.GetCarRentPost()
-                ? Brushes.Green
-                : Brushes.Red;
+            var selected = operationsListBox.SelectedItem as string;
+
+            if (string.IsNullOrEmpty(selected))
+            {
+                MessageBox.Show("Сначала выберите операцию.",
+                                "Информация",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                return;
+            }
+
+            var contractWindow = new ContractWindow(selected) { Owner = this };
+            contractWindow.ShowDialog();
         }
     }
 }
