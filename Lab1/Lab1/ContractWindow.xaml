@@ -25,7 +25,6 @@
                    FontWeight="Bold"
                    Margin="0,0,0,10"/>
 
-        <!-- Прокручиваемая область с блоками -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto">
             <StackPanel>
@@ -62,22 +61,19 @@
                                MinHeight="40"/>
                 </GroupBox>
 
-                <!-- Секция «Граничные примеры» -->
+                <!-- Граничные примеры -->
                 <TextBlock Text="Граничные примеры"
                            FontSize="14"
                            FontWeight="Bold"
                            Margin="0,10,0,5"/>
 
-                <!-- Корректный пример -->
-                <GroupBox Header="Корректный пример" Padding="8" Margin="0,0,0,10">
+                <GroupBox Header="Пример: валидный вход" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="correctExampleBlock"
                                Text=""
                                TextWrapping="Wrap"
                                MinHeight="40"/>
                 </GroupBox>
-
-                <!-- Некорректный пример -->
-                <GroupBox Header="Некорректный пример" Padding="8" Margin="0,0,0,10">
+                <GroupBox Header="Пример: невалидный вход" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="incorrectExampleBlock"
                                Text=""
                                TextWrapping="Wrap"

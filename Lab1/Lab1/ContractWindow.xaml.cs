@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Lab1.Contracts;
+using System.Windows;
 
 namespace Lab1
 {
@@ -9,10 +10,22 @@ namespace Lab1
             InitializeComponent();
         }
 
-        public ContractWindow(string operationName) : this()
+        public ContractWindow(string contractKey) : this()
         {
-            contractHeader.Text = "Контракт операции: " + operationName;
-            this.Title = "Контракт операции: " + operationName;
+            var info = ContractRegistry.Get(contractKey);
+            Bind(info);
+        }
+
+        private void Bind(ContractInfo info)
+        {
+            
+            contractHeader.Text = info.Title;
+            preBlock.Text = info.Pre;
+            postBlock.Text = info.Post;
+            effectsBlock.Text = info.Effects;
+            exceptionsBlock.Text = info.Exceptions;
+            correctExampleBlock.Text = info.CorrectExample;
+            incorrectExampleBlock.Text = info.IncorrectExample;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

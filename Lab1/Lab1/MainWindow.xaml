@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lab1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="600" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -38,6 +38,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <TextBlock x:Name="parametersHeader"
@@ -47,21 +49,98 @@
                        FontWeight="Bold"
                        Margin="0,0,0,10"/>
 
-            <StackPanel x:Name="parametersGroup" 
-                        Grid.Row="1" 
-                        VerticalAlignment="Top" 
-                        Margin="0,0,0,10"
-                        Visibility="Collapsed">
-                
-                <CheckBox x:Name="chkCarExists" Content="Авто существует" Margin="0,5,0,0" 
-                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
-                <CheckBox x:Name="chkCarAvailable" Content="Авто доступно" Margin="0,5,0,0" 
-                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
-                <CheckBox x:Name="chkUserLoggedIn" Content="Пользователь авторизован" Margin="0,5,0,0" 
-                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
-                <CheckBox x:Name="chkActiveRent" Content="Пользователь имеет активную аренду" Margin="0,5,0,0" 
-                          Checked="CheckBox_StateChanged" Unchecked="CheckBox_StateChanged"/>
+            <!-- Обе группы лежат в одной ячейке, показывается только одна -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Top">
 
+                <!-- Группа: Начать аренду -->
+                <StackPanel x:Name="rentParametersGroup"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,10">
+                    <TextBlock Text="Параметры: Начать аренду"
+                               FontWeight="Bold"
+                               Margin="0,0,0,5"/>
+
+                    <CheckBox x:Name="chkCarAvailable"
+                              Content="Авто доступно"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+                    <CheckBox x:Name="chkUserLoggedIn"
+                              Content="Пользователь авторизован"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+                    <CheckBox x:Name="chkActiveRent"
+                              Content="Пользователь имеет активную аренду"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+                </StackPanel>
+
+                <!-- Группа: Завершить аренду -->
+                <StackPanel x:Name="returnParametersGroup"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,10">
+                    <TextBlock Text="Параметры: Завершить аренду"
+                               FontWeight="Bold"
+                               Margin="0,0,0,5"/>
+
+                    <CheckBox x:Name="chkReturnUserLoggedIn"
+                              Content="Пользователь авторизован"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+                    <CheckBox x:Name="chkReturnActiveRent"
+                              Content="Пользователь имеет активную аренду"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+
+                    <TextBlock Text="Баланс" Margin="0,10,0,0"/>
+                    <TextBox x:Name="txtBalance"
+                             Text="0"
+                             Margin="0,2,0,0"
+                             TextChanged="TextBox_ParameterChanged"/>
+
+                    <TextBlock Text="Тариф (за единицу расстояния)" Margin="0,10,0,0"/>
+                    <TextBox x:Name="txtTariff"
+                             Text="0"
+                             Margin="0,2,0,0"
+                             TextChanged="TextBox_ParameterChanged"/>
+
+                    <TextBlock Text="Расстояние (целое число)" Margin="0,10,0,0"/>
+                    <TextBox x:Name="txtDistance"
+                             Text="0"
+                             Margin="0,2,0,0"
+                             TextChanged="TextBox_ParameterChanged"/>
+                </StackPanel>
+
+                <!-- Группа: Пополнить баланс -->
+                <StackPanel x:Name="topUpParametersGroup"
+                            Visibility="Collapsed"
+                            Margin="0,0,0,10">
+                    <TextBlock Text="Параметры: Пополнить баланс"
+                               FontWeight="Bold"
+                               Margin="0,0,0,5"/>
+
+                    <CheckBox x:Name="chkTopUpUserLoggedIn"
+                              Content="Пользователь авторизован"
+                              Margin="0,5,0,0"
+                              Checked="CheckBox_StateChanged"
+                              Unchecked="CheckBox_StateChanged"/>
+
+                    <TextBlock Text="Текущий баланс" Margin="0,10,0,0"/>
+                    <TextBox x:Name="txtTopUpBalance"
+                             Text="0"
+                             Margin="0,2,0,0"
+                             TextChanged="TextBox_ParameterChanged"/>
+
+                    <TextBlock Text="Сумма пополнения" Margin="0,10,0,0"/>
+                    <TextBox x:Name="txtTopUpValue"
+                             Text="0"
+                             Margin="0,2,0,0"
+                             TextChanged="TextBox_ParameterChanged"/>
+                </StackPanel>
             </StackPanel>
 
             <Button Grid.Row="2"
@@ -70,44 +149,55 @@
                     Margin="0,10,0,0"
                     Click="ExecuteButton_Click"/>
 
+            <!-- Результат -->
+            <StackPanel Grid.Row="3" Margin="0,10,0,0">
+                <TextBlock Text="Результат"
+                           FontWeight="Bold"
+                           Margin="0,0,0,5"/>
+                <TextBox x:Name="resultTextBox"
+                         Height="60"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         VerticalContentAlignment="Top"/>
+            </StackPanel>
+
             <!-- Индикаторы Pre / Post -->
-            <Grid Grid.Row="3" Margin="0,15,0,0">
+            <Grid Grid.Row="4" Margin="0,10,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Pre -->
                 <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                    <TextBlock Text="Pre"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
+                    <TextBlock Text="Pre" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,0,0,5"/>
                     <Rectangle x:Name="preIndicator"
-                               Width="20"
-                               Height="20"
-                               Fill="LightGray"
-                               Stroke="Gray"/>
+                               Width="20" Height="20"
+                               Fill="LightGray" Stroke="Gray"/>
                 </StackPanel>
 
-                <!-- Post -->
                 <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                    <TextBlock Text="Post"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,5"/>
+                    <TextBlock Text="Post" FontWeight="Bold"
+                               HorizontalAlignment="Center" Margin="0,0,0,5"/>
                     <Rectangle x:Name="postIndicator"
-                               Width="20"
-                               Height="20"
-                               Fill="LightGray"
-                               Stroke="Gray"/>
+                               Width="20" Height="20"
+                               Fill="LightGray" Stroke="Gray"/>
                 </StackPanel>
             </Grid>
 
-            <Button Grid.Row="4"
+            <Button Grid.Row="5"
+                    Content="Сбросить"
+                    Height="30"
+                    Margin="0,10,0,0"
+                    Click="ResetButton_Click"/>
+
+            <Button Grid.Row="6"
                     Content="Показать контракт"
                     Height="30"
-                    Margin="0,15,0,0" Click="ContractShowButton_Click"/>
+                    Margin="0,15,0,0"
+                    Click="ContractShowButton_Click"/>
         </Grid>
     </Grid>
 </Window>
