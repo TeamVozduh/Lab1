@@ -2,7 +2,7 @@
 
 namespace Lab1
 {
-    class ViewModel
+    public class ViewModel
     {
         private readonly CarRentOperation carRentOperation;
         private readonly CarReturnOperation carReturnOperation;
