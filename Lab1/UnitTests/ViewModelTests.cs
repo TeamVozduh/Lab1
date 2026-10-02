@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using Lab1;
 using ClassLibrary;
+using System.ComponentModel;
 
 namespace UnitTests
 {
@@ -16,7 +17,7 @@ namespace UnitTests
         }
 
         //rent
-
+ 
         [Test]
         public void SetCarRentParameters_ValidState_GetCarRentPreReturnsTrue()
         {

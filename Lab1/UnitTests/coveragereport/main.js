@@ -298,11 +298,10 @@ var assemblies = [
   {
     "name": "Lab1",
     "classes": [
-      { "name": "Lab1.App", "rp": "Lab1_App.html", "cl": 0, "ucl": 2, "cal": 2, "tl": 79, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Lab1.ContractInfo", "rp": "Lab1_ContractInfo.html", "cl": 0, "ucl": 8, "cal": 8, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Lab1.Contracts.ContractRegistry", "rp": "Lab1_ContractRegistry.html", "cl": 0, "ucl": 63, "cal": 63, "tl": 80, "cb": 0, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Lab1.ContractWindow", "rp": "Lab1_ContractWindow.html", "cl": 0, "ucl": 23, "cal": 23, "tl": 131, "cb": 0, "tb": 11, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
-      { "name": "Lab1.MainWindow", "rp": "Lab1_MainWindow.html", "cl": 0, "ucl": 252, "cal": 252, "tl": 560, "cb": 0, "tb": 75, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Lab1.ContractInfo", "rp": "Lab1_ContractInfo.html", "cl": 8, "ucl": 0, "cal": 8, "tl": 17, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Lab1.Contracts.ContractRegistry", "rp": "Lab1_ContractRegistry.html", "cl": 63, "ucl": 0, "cal": 63, "tl": 80, "cb": 2, "tb": 2, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Lab1.ContractWindow", "rp": "Lab1_ContractWindow.html", "cl": 20, "ucl": 3, "cal": 23, "tl": 131, "cb": 10, "tb": 11, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
+      { "name": "Lab1.MainWindow", "rp": "Lab1_MainWindow.html", "cl": 139, "ucl": 113, "cal": 252, "tl": 560, "cb": 46, "tb": 75, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
       { "name": "Lab1.ViewModel", "rp": "Lab1_ViewModel.html", "cl": 53, "ucl": 4, "cal": 57, "tl": 102, "cb": 0, "tb": 0, "cm": 0, "fcm": 0, "tm": 0, "lch": [], "bch": [], "mch": [], "mfch": [], "hc": [], "metrics": { } },
     ]},
 ];
@@ -317,30 +316,6 @@ var riskHotspotMetrics = [
 ];
 
 var riskHotspots = [
-  {
-    "assembly": "Lab1", "class": "Lab1.MainWindow", "reportPath": "Lab1_MainWindow.html", "methodName": "System.Windows.Markup.IComponentConnector.Connect(System.Int32,System.Object)", "methodShortName": "System.Windows.Markup.IComponentConnector.Connect(...)", "fileIndex": 0, "line": 30,
-    "metrics": [
-      { "value": 552, "exceeded": true },
-      { "value": 23, "exceeded": true },
-    ]},
-  {
-    "assembly": "Lab1", "class": "Lab1.ContractWindow", "reportPath": "Lab1_ContractWindow.html", "methodName": "System.Windows.Markup.IComponentConnector.Connect(System.Int32,System.Object)", "methodShortName": "System.Windows.Markup.IComponentConnector.Connect(...)", "fileIndex": 0, "line": 93,
-    "metrics": [
-      { "value": 90, "exceeded": true },
-      { "value": 9, "exceeded": false },
-    ]},
-  {
-    "assembly": "Lab1", "class": "Lab1.MainWindow", "reportPath": "Lab1_MainWindow.html", "methodName": "OperationsListBox_SelectionChanged(System.Object,System.Windows.Controls.SelectionChangedEventArgs)", "methodShortName": "OperationsListBox_SelectionChanged(...)", "fileIndex": 1, "line": 37,
-    "metrics": [
-      { "value": 72, "exceeded": true },
-      { "value": 8, "exceeded": false },
-    ]},
-  {
-    "assembly": "Lab1", "class": "Lab1.MainWindow", "reportPath": "Lab1_MainWindow.html", "methodName": "RefreshPreIndicator()", "methodShortName": "RefreshPreIndicator()", "fileIndex": 1, "line": 96,
-    "metrics": [
-      { "value": 42, "exceeded": true },
-      { "value": 6, "exceeded": false },
-    ]},
   {
     "assembly": "Lab1", "class": "Lab1.MainWindow", "reportPath": "Lab1_MainWindow.html", "methodName": "ExecuteButton_Click(System.Object,System.Windows.RoutedEventArgs)", "methodShortName": "ExecuteButton_Click(...)", "fileIndex": 1, "line": 160,
     "metrics": [
@@ -364,6 +339,12 @@ var riskHotspots = [
     "metrics": [
       { "value": 42, "exceeded": true },
       { "value": 6, "exceeded": false },
+    ]},
+  {
+    "assembly": "Lab1", "class": "Lab1.MainWindow", "reportPath": "Lab1_MainWindow.html", "methodName": "System.Windows.Markup.IComponentConnector.Connect(System.Int32,System.Object)", "methodShortName": "System.Windows.Markup.IComponentConnector.Connect(...)", "fileIndex": 0, "line": 30,
+    "metrics": [
+      { "value": 23, "exceeded": false },
+      { "value": 23, "exceeded": true },
     ]},
 ];
 

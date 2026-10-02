@@ -5,13 +5,10 @@ using System.Collections.Generic;
 
 namespace UnitTests
 {
-    // ==================== ТЕСТЫ ContractRegistry ====================
 
     [TestFixture]
     public class ContractRegistryTests
     {
-        // ==================== КОНСТАНТЫ ====================
-
         [Test]
         public void RentCarKey_HasCorrectValue()
         {
@@ -30,7 +27,7 @@ namespace UnitTests
             Assert.That(ContractRegistry.TopUpKey, Is.EqualTo("Пополнить баланс"));
         }
 
-        // ==================== GET ====================
+        //get
 
         [Test]
         public void Get_RentCarKey_ReturnsContractInfo()
@@ -84,7 +81,7 @@ namespace UnitTests
                 ContractRegistry.Get(""));
         }
 
-        // ==================== TRY GET ====================
+        //try get
 
         [Test]
         public void TryGet_ExistingKey_ReturnsTrueAndInfo()
@@ -121,7 +118,7 @@ namespace UnitTests
             });
         }
 
-        // ==================== СОДЕРЖИМОЕ КОНТРАКТОВ ====================
+        //контракты
 
         [Test]
         public void RentCarContract_HasAllFieldsFilled()
@@ -233,7 +230,6 @@ namespace UnitTests
         }
     }
 
-    // ==================== ТЕСТЫ ContractInfo ====================
 
     [TestFixture]
     public class ContractInfoTests
@@ -288,7 +284,7 @@ namespace UnitTests
         }
 
         [Test]
-        public void Record_WithExpression_CreatesCopy()
+        public void Record_WithExpression_CreatesCopy()Ы
         {
             var info1 = new ContractInfo("A", "B", "C", "D", "E", "F", "G");
             var info2 = info1 with { Title = "Новый заголовок" };
@@ -296,7 +292,7 @@ namespace UnitTests
             Assert.Multiple(() =>
             {
                 Assert.That(info2.Title, Is.EqualTo("Новый заголовок"));
-                Assert.That(info1.Title, Is.EqualTo("A")); // оригинал не изменился
+                Assert.That(info1.Title, Is.EqualTo("A")); 
             });
         }
     }
