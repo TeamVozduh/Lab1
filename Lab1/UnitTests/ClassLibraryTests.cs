@@ -38,28 +38,28 @@ namespace UnitTests
         }
 
         [Test]
-        public void GetPre_AllConditionsTruereturnsTrue()
+        public void GetPre_AllConditionsTrue_returnsTrue()
         {
             rent.SetState(carAvailable: true, userLoggedIn: true, userHasActiveRent: false);
             Assert.That(rent.GetPre(), Is.True);
         }
 
         [Test]
-        public void GetPre_CarNotAvailablereturnsFalse()
+        public void GetPre_CarNotAvailable_returnsFalse()
         {
             rent.SetState(carAvailable: false, userLoggedIn: true, userHasActiveRent: false);
             Assert.That(rent.GetPre(), Is.False);
         }
 
         [Test]
-        public void GetPre_UserNotLoggedInreturnsFalse()
+        public void GetPre_UserNotLoggedIn_returnsFalse()
         {
             rent.SetState(carAvailable: true, userLoggedIn: false, userHasActiveRent: false);
             Assert.That(rent.GetPre(), Is.False);
         }
 
         [Test]
-        public void GetPre_UserHasActiveRentreturnsFalse()
+        public void GetPre_UserHasActiveRent_returnsFalse()
         {
             rent.SetState(carAvailable: true, userLoggedIn: true, userHasActiveRent: true);
             Assert.That(rent.GetPre(), Is.False);
