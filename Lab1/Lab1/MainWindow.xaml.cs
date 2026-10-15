@@ -41,7 +41,7 @@ namespace Lab1
             preIndicator.Fill = Brushes.LightGray;
             rentParametersGroup.Visibility = Visibility.Collapsed;
             returnParametersGroup.Visibility = Visibility.Collapsed;
-            topUpParametersGroup.Visibility = Visibility.Collapsed;Ы
+            topUpParametersGroup.Visibility = Visibility.Collapsed;
 
             if (string.IsNullOrEmpty(selected))
             {
