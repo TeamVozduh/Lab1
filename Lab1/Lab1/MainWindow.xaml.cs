@@ -29,21 +29,19 @@ namespace Lab1
             _isInitializing = false;
         }
 
-        // ───────────────────────────────────────────────────────────
-        // Выбор операции
-        // ───────────────────────────────────────────────────────────
+        //Выбор операции
 
         private void OperationsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = operationsListBox.SelectedItem as string;
 
-            // Общий сброс
+            //Общий сброс
             resultTextBox.Clear();
             postIndicator.Fill = Brushes.LightGray;
             preIndicator.Fill = Brushes.LightGray;
             rentParametersGroup.Visibility = Visibility.Collapsed;
             returnParametersGroup.Visibility = Visibility.Collapsed;
-            topUpParametersGroup.Visibility = Visibility.Collapsed;
+            topUpParametersGroup.Visibility = Visibility.Collapsed;Ы
 
             if (string.IsNullOrEmpty(selected))
             {
@@ -70,9 +68,7 @@ namespace Lab1
             }
         }
 
-        // ───────────────────────────────────────────────────────────
         // Общие обработчики изменений
-        // ───────────────────────────────────────────────────────────
 
         private void TextBox_ParameterChanged(object sender, TextChangedEventArgs e)
         {
@@ -118,9 +114,7 @@ namespace Lab1
                 : Brushes.Red;
         }
 
-        // ───────────────────────────────────────────────────────────
         // Pre-индикаторы
-        // ───────────────────────────────────────────────────────────
 
         private void UpdateRentPreIndicator()
         {
@@ -152,9 +146,8 @@ namespace Lab1
                 : Brushes.Red;
         }
 
-        // ───────────────────────────────────────────────────────────
-        // Выполнить
-        // ───────────────────────────────────────────────────────────
+        //Выполнить
+
 
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
@@ -290,9 +283,8 @@ namespace Lab1
             SetTopUpParametersEnabled(false);
         }
 
-        // ───────────────────────────────────────────────────────────
-        // Показать контракт
-        // ───────────────────────────────────────────────────────────
+        //Показать контракт
+
 
         private void ContractShowButton_Click(object sender, RoutedEventArgs e)
         {
@@ -311,9 +303,7 @@ namespace Lab1
             contractWindow.ShowDialog();
         }
 
-        // ───────────────────────────────────────────────────────────
-        // Блокировка/разблокировка параметров
-        // ───────────────────────────────────────────────────────────
+        //Блокировка/разблокировка параметров
 
         private void SetRentParametersEnabled(bool enabled)
         {
@@ -338,9 +328,7 @@ namespace Lab1
         }
 
 
-        // ───────────────────────────────────────────────────────────
-        // Сброс
-        // ───────────────────────────────────────────────────────────
+        //Сброс
 
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
@@ -352,6 +340,50 @@ namespace Lab1
             resultTextBox.Clear();
 
             RefreshPreIndicator();
+        }
+
+        //WP-КАЛЬКУЛЯТОР (НОВОЕ) 
+
+        private void CalculateWpButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtTrace.Text = "TODO: пошаговый трейс\n" +
+                            "Через последний оператор...\n" +
+                            "Через предыдущий ...";
+            txtWpShort.Text = "TODO: wp в краткой записи";
+            txtWpHumanReadable.Text = "TODO: wp человеческим языком";
+        }
+
+        private void ShowTriadButton_Click(object sender, RoutedEventArgs e)
+        {
+            string pre = txtWpShort.Text;
+            string post = txtPostCondition.Text;
+            txtTriad.Text = $"{{ {pre} }} P {{ {post} }}";
+        }
+
+        private void PresetMaxButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "max > 100";
+            txtPostHumanReadable.Text = "Постусловие: максимум больше 100";
+            txtFragmentCode.Text = "if (x1 >= x2) { max := x1; } else { max := x2; }";
+        }
+
+        private void PresetQuadraticButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "D >= 0 && x = (-b + sqrt(D)) / (2*a)";
+            txtPostHumanReadable.Text = "Постусловие: найден корень уравнения";
+            txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) { x := (-b + sqrt(D)) / (2*a); } else { x := -999; }";
+        }
+
+        private void PresetSequenceButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "y = x - 9 && x > 15";
+            txtPostHumanReadable.Text = "Постусловие: y равен x минус 9 и x больше 15";
+            txtFragmentCode.Text = "x := x + 10; y := x + 1;";
+        }
+
+        private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+
         }
     }
 }
