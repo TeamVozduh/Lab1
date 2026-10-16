@@ -239,7 +239,7 @@
                                  FontFamily="Consolas"
                                  Margin="0,0,0,5"
                                  Text="if (x1 >= x2) { max := x1; } else { max := x2; }"/>
-                        <TextBlock Text="Поддерживается: x := expr, if (B) { S1 } else { S2 }, последовательность через ;"
+                        <TextBlock Text="Поддерживается: x := expr; if (B) { S1 } else { S2 }; + - * / abs() sqrt(), сравнения, &amp;&amp;, ||"
                                    FontSize="11"
                                    Foreground="Gray"
                                    TextWrapping="Wrap"
@@ -253,6 +253,7 @@
                                     Click="CalculateWpButton_Click"/>
                             <Button x:Name="btnShowTriad"
                                     Content="Показать триаду"
+                                    IsEnabled="False"
                                     Width="150" Height="35"
                                     Click="ShowTriadButton_Click"/>
                         </StackPanel>

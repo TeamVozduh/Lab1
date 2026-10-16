@@ -1,4 +1,5 @@
 ﻿using Lab1.Contracts;
+using ClassLibrary.Wp;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -9,6 +10,7 @@ namespace Lab1
     {
         private ViewModel viewModel;
         private bool _isInitializing = true;
+        private WpResult? wpResult;
 
         public MainWindow()
         {
@@ -27,6 +29,10 @@ namespace Lab1
             postIndicator.Fill = Brushes.LightGray;
 
             _isInitializing = false;
+
+            txtPostCondition.TextChanged += WpInputChanged;
+            txtFragmentCode.TextChanged += WpInputChanged;
+            RefreshPostDescription();
         }
 
         //Выбор операции
@@ -342,43 +348,76 @@ namespace Lab1
             RefreshPreIndicator();
         }
 
-        //WP-КАЛЬКУЛЯТОР (НОВОЕ) 
+        // WP-калькулятор
+
+        private void WpInputChanged(object sender, TextChangedEventArgs e)
+        {
+            wpResult = null;
+            txtTrace.Clear();
+            txtWpShort.Clear();
+            txtWpHumanReadable.Clear();
+            txtTriad.Clear();
+            btnShowTriad.IsEnabled = false;
+            RefreshPostDescription();
+        }
+
+        private void RefreshPostDescription()
+        {
+            try
+            {
+                txtPostHumanReadable.Text = WpEngine.DescribePostcondition(txtPostCondition.Text);
+            }
+            catch (WpParseException)
+            {
+                txtPostHumanReadable.Text = "Введите корректное постусловие";
+            }
+        }
 
         private void CalculateWpButton_Click(object sender, RoutedEventArgs e)
         {
-            txtTrace.Text = "TODO: пошаговый трейс\n" +
-                            "Через последний оператор...\n" +
-                            "Через предыдущий ...";
-            txtWpShort.Text = "TODO: wp в краткой записи";
-            txtWpHumanReadable.Text = "TODO: wp человеческим языком";
+            try
+            {
+                wpResult = WpEngine.Calculate(txtFragmentCode.Text, txtPostCondition.Text);
+                txtPostHumanReadable.Text = wpResult.PostHumanReadable;
+                txtTrace.Text = wpResult.Trace;
+                txtWpShort.Text = wpResult.WeakestPrecondition;
+                txtWpHumanReadable.Text = wpResult.WeakestPreconditionHumanReadable;
+                txtTriad.Clear();
+                btnShowTriad.IsEnabled = true;
+            }
+            catch (WpParseException ex)
+            {
+                wpResult = null;
+                txtTrace.Text = "Ошибка ввода: " + ex.Message;
+                txtWpShort.Clear();
+                txtWpHumanReadable.Clear();
+                txtTriad.Clear();
+                btnShowTriad.IsEnabled = false;
+            }
         }
 
         private void ShowTriadButton_Click(object sender, RoutedEventArgs e)
         {
-            string pre = txtWpShort.Text;
-            string post = txtPostCondition.Text;
-            txtTriad.Text = $"{{ {pre} }} P {{ {post} }}";
+            if (wpResult is not null)
+                txtTriad.Text = wpResult.Triad;
         }
 
         private void PresetMaxButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "max > 100";
-            txtPostHumanReadable.Text = "Постусловие: максимум больше 100";
             txtFragmentCode.Text = "if (x1 >= x2) { max := x1; } else { max := x2; }";
         }
 
         private void PresetQuadraticButton_Click(object sender, RoutedEventArgs e)
         {
-            txtPostCondition.Text = "D >= 0 && x = (-b + sqrt(D)) / (2*a)";
-            txtPostHumanReadable.Text = "Постусловие: найден корень уравнения";
+            txtPostCondition.Text = "(D >= 0 && a*x*x + b*x + c == 0) || (D < 0 && x == -999)";
             txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) { x := (-b + sqrt(D)) / (2*a); } else { x := -999; }";
         }
 
         private void PresetSequenceButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "y = x - 9 && x > 15";
-            txtPostHumanReadable.Text = "Постусловие: y равен x минус 9 и x больше 15";
-            txtFragmentCode.Text = "x := x + 10; y := x + 1;";
+            txtFragmentCode.Text = "y := x + 1; x := x + 10;";
         }
 
         private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
