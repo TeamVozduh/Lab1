@@ -284,7 +284,7 @@ namespace UnitTests
         }
 
         [Test]
-        public void Record_WithExpression_CreatesCopy()Ы
+        public void Record_WithExpression_CreatesCopy()
         {
             var info1 = new ContractInfo("A", "B", "C", "D", "E", "F", "G");
             var info2 = info1 with { Title = "Новый заголовок" };
