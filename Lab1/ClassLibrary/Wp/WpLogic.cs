@@ -6,6 +6,7 @@ internal static class WpLogic
 {
     private static readonly BooleanExpression True = new BooleanConstant(true);
 
+    // Normalize a condition recursively before using or displaying it.
     public static BooleanExpression Simplify(BooleanExpression expression) => expression switch
     {
         BooleanConstant => expression,
@@ -17,6 +18,8 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное логическое выражение")
     };
 
+    // Expressions are valid only when division avoids zero and sqrt receives
+    // a nonnegative argument. Child expressions must also be valid.
     public static BooleanExpression Defined(ArithmeticExpression expression) => expression switch
     {
         NumberExpression or VariableExpression => True,
@@ -32,6 +35,8 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
     };
 
+    // AND and OR evaluate their right side only when the left side requires it.
+    // This lets a guard protect a partial expression in the right side.
     public static BooleanExpression Defined(BooleanExpression expression) => expression switch
     {
         BooleanConstant => True,
@@ -45,6 +50,8 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное логическое выражение")
     };
 
+    // Replace the assigned variable throughout the target condition, including
+    // arithmetic expressions nested inside comparisons.
     public static BooleanExpression Substitute(BooleanExpression expression, string variable,
                                                ArithmeticExpression replacement) => expression switch
     {
@@ -76,6 +83,8 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
     };
 
+    // Fold constants and contradictions while combining required conditions.
+    // A comparison can also simplify the other side when it is known to hold.
     public static BooleanExpression And(BooleanExpression left, BooleanExpression right)
     {
         if (left is BooleanConstant { Value: false } || right is BooleanConstant { Value: false })
@@ -95,6 +104,7 @@ internal static class WpLogic
         return new BooleanBinaryExpression(left, BooleanOperator.And, right);
     }
 
+    // Reuse a known comparison inside a larger condition without solving it again.
     private static BooleanExpression SimplifyAssuming(BooleanExpression expression, BooleanExpression fact)
     {
         if (expression == fact) return new BooleanConstant(true);
@@ -110,6 +120,7 @@ internal static class WpLogic
         };
     }
 
+    // Apply the corresponding constant, duplicate, and opposite rules for OR.
     public static BooleanExpression Or(BooleanExpression left, BooleanExpression right)
     {
         if (left is BooleanConstant { Value: true } || right is BooleanConstant { Value: true })
@@ -121,6 +132,7 @@ internal static class WpLogic
         return new BooleanBinaryExpression(left, BooleanOperator.Or, right);
     }
 
+    // Push negation into simple comparisons and remove double negation.
     public static BooleanExpression Not(BooleanExpression value) => value switch
     {
         BooleanConstant constant => new BooleanConstant(!constant.Value),
@@ -138,6 +150,8 @@ internal static class WpLogic
         _ => new NotExpression(value)
     };
 
+    // Evaluate constant comparisons and simplify equal sides before retaining
+    // a symbolic comparison.
     public static BooleanExpression Compare(ArithmeticExpression left, ComparisonOperator operation,
                                             ArithmeticExpression right)
     {
@@ -167,6 +181,7 @@ internal static class WpLogic
         return new ComparisonExpression(left, operation, right);
     }
 
+    // Simplify arithmetic from the leaves up so substitution produces readable wp.
     public static ArithmeticExpression Simplify(ArithmeticExpression expression) => expression switch
     {
         NumberExpression or VariableExpression => expression,
@@ -185,6 +200,7 @@ internal static class WpLogic
         return new NegativeExpression(value);
     }
 
+    // Fold safe constants and neutral values, then combine trailing offsets.
     private static ArithmeticExpression Arithmetic(ArithmeticExpression left, ArithmeticOperator operation,
                                                    ArithmeticExpression right)
     {
@@ -213,6 +229,7 @@ internal static class WpLogic
         return new ArithmeticBinaryExpression(left, operation, right);
     }
 
+    // Split x + 2 - 3 into its symbolic core and one constant offset.
     private static bool TryOffset(ArithmeticExpression expression, out ArithmeticExpression core,
                                   out decimal offset)
     {
@@ -248,6 +265,7 @@ internal static class WpLogic
                 : new ArithmeticBinaryExpression(core, ArithmeticOperator.Add, new NumberExpression(offset));
     }
 
+    // Keep operations symbolic if decimal arithmetic could round or overflow.
     private static bool TryCalculate(decimal left, ArithmeticOperator operation, decimal right, out decimal result)
     {
         result = 0;
@@ -273,6 +291,7 @@ internal static class WpLogic
         catch (OverflowException) { result = 0; return false; }
     }
 
+    // Render arithmetic with parentheses only where precedence requires them.
     public static string Format(ArithmeticExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch
@@ -303,6 +322,7 @@ internal static class WpLogic
         return precedence < parentPrecedence ? "(" + text + ")" : text;
     }
 
+    // Render a condition in syntax that the parser can read again.
     public static string Format(BooleanExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch
@@ -335,6 +355,7 @@ internal static class WpLogic
         return precedence < parentPrecedence ? "(" + text + ")" : text;
     }
 
+    // Explain the same condition in plain language for the UI.
     public static string Describe(BooleanExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch

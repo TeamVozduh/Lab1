@@ -1,5 +1,6 @@
 namespace ClassLibrary.Wp;
 
+// One calculation returns the normalized goal, wp, explanation, steps, and triad.
 public sealed record WpResult(
     string Post,
     string PostHumanReadable,
@@ -10,6 +11,8 @@ public sealed record WpResult(
 
 public static class WpEngine
 {
+    // Parse both inputs, include any domain requirements, then work backward
+    // through the program to find the weakest starting condition.
     public static WpResult Calculate(string fragment, string postcondition)
     {
         ArgumentNullException.ThrowIfNull(fragment);
@@ -43,6 +46,7 @@ public static class WpEngine
             ", то после выполнения " + WpLogic.Describe(post) + ".");
     }
 
+    // The UI can explain Post while the user edits it, before a full calculation.
     public static string DescribePostcondition(string postcondition)
     {
         ArgumentNullException.ThrowIfNull(postcondition);
@@ -50,6 +54,8 @@ public static class WpEngine
         return "После выполнения: " + WpLogic.Describe(WpLogic.Simplify(parsed));
     }
 
+    // wp is calculated from the last statement toward the first. The current
+    // target is the condition required immediately after each statement.
     private static BooleanExpression PullBack(IReadOnlyList<Statement> statements,
                                               BooleanExpression target, TraceWriter trace,
                                               string indentation)
@@ -61,6 +67,8 @@ public static class WpEngine
             {
                 case AssignmentStatement assignment:
                 {
+                    // An assignment must be defined; replace its target variable
+                    // with the assigned expression in the later condition.
                     var defined = WpLogic.Defined(assignment.Value);
                     var substituted = WpLogic.Substitute(current, assignment.Variable, assignment.Value);
                     current = WpLogic.And(defined, substituted);
@@ -73,6 +81,8 @@ public static class WpEngine
 
                 case IfStatement branch:
                 {
+                    // Compute both branches against the same target, then select
+                    // each result under its guard and require a valid guard.
                     var guard = WpLogic.Simplify(branch.Condition);
                     trace.Add(indentation + "Через if (" + WpLogic.Format(guard) +
                               "): считаем обе ветки от цели " + WpLogic.Format(current));
@@ -103,6 +113,7 @@ public static class WpEngine
         return current;
     }
 
+    // Number the steps in the order they are produced by backward traversal.
     private sealed class TraceWriter
     {
         private readonly List<string> steps = new();
