@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lab1"
         mc:Ignorable="d"
-        Title="Lab1 — Контракты и wp-калькулятор"
+        Title="Проект команды Воздух"
         Height="700" Width="1100"
-        Background="#F4F7F6">
+        Background="#F4F7F6"
+        Icon="icon.png">
 
     <Window.Resources>
         <!--Стиль для кнопок-->
