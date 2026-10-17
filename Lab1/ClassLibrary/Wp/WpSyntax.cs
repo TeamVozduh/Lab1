@@ -2,6 +2,7 @@ using System.Globalization;
 
 namespace ClassLibrary.Wp;
 
+// Parser errors keep the source position so the UI can point to invalid input.
 public sealed class WpParseException : FormatException
 {
     public int Position { get; }
@@ -13,6 +14,7 @@ public sealed class WpParseException : FormatException
     }
 }
 
+// These nodes represent arithmetic expressions without evaluating variables yet.
 internal abstract record ArithmeticExpression;
 internal sealed record NumberExpression(decimal Value) : ArithmeticExpression;
 internal sealed record VariableExpression(string Name) : ArithmeticExpression;
@@ -23,6 +25,7 @@ internal sealed record FunctionExpression(string Name, ArithmeticExpression Argu
 
 internal enum ArithmeticOperator { Add, Subtract, Multiply, Divide }
 
+// Boolean nodes form comparisons and conditions used by if and Post.
 internal abstract record BooleanExpression;
 internal sealed record BooleanConstant(bool Value) : BooleanExpression;
 internal sealed record ComparisonExpression(
@@ -34,11 +37,13 @@ internal sealed record BooleanBinaryExpression(
 internal enum ComparisonOperator { Equal, NotEqual, Less, LessOrEqual, Greater, GreaterOrEqual }
 internal enum BooleanOperator { And, Or }
 
+// A program is a sequence of assignments and complete if/else statements.
 internal abstract record Statement;
 internal sealed record AssignmentStatement(string Variable, ArithmeticExpression Value) : Statement;
 internal sealed record IfStatement(
     BooleanExpression Condition, IReadOnlyList<Statement> ThenBranch, IReadOnlyList<Statement> ElseBranch) : Statement;
 
+// Tokens retain their original position for precise syntax errors.
 internal enum TokenKind
 {
     End, Identifier, Number, If, Else, Assign, Semicolon, LeftBrace, RightBrace,
@@ -58,6 +63,7 @@ internal sealed class WpParser
         tokens = Tokenize(source).ToList();
     }
 
+    // Program and Post share one tokenizer but have different starting rules.
     public IReadOnlyList<Statement> ParseProgram()
     {
         var statements = ParseSequence(TokenKind.End);
@@ -74,6 +80,7 @@ internal sealed class WpParser
         return result;
     }
 
+    // Read statements until the closing brace or end of input; require separators.
     private List<Statement> ParseSequence(TokenKind end)
     {
         var result = new List<Statement>();
@@ -92,6 +99,7 @@ internal sealed class WpParser
         return result;
     }
 
+    // Every conditional must include else, so both possible paths are explicit.
     private Statement ParseStatement()
     {
         if (Match(TokenKind.If))
@@ -114,6 +122,7 @@ internal sealed class WpParser
         return new AssignmentStatement(name.Text, ParseAddSubtract());
     }
 
+    // Boolean precedence, from low to high: OR, AND, NOT, comparison.
     private BooleanExpression ParseOr()
     {
         var left = ParseAnd();
@@ -173,6 +182,7 @@ internal sealed class WpParser
         return new ComparisonExpression(left, operation, ParseAddSubtract());
     }
 
+    // Arithmetic precedence, from low to high: addition, multiplication, unary sign.
     private ArithmeticExpression ParseAddSubtract()
     {
         var left = ParseMultiplyDivide();
@@ -204,6 +214,7 @@ internal sealed class WpParser
         return ParseArithmeticPrimary();
     }
 
+    // Parse literals, variables, supported functions, and parenthesized expressions.
     private ArithmeticExpression ParseArithmeticPrimary()
     {
         if (Current.Kind == TokenKind.Number)
@@ -237,6 +248,7 @@ internal sealed class WpParser
         throw new WpParseException("Ожидается число, переменная или выражение в скобках", Current.Position);
     }
 
+    // These helpers inspect or consume tokens; Expect reports the next token's position.
     private Token Current => tokens[index];
 
     private Token Advance() => tokens[index++];
@@ -254,6 +266,8 @@ internal sealed class WpParser
         return Advance();
     }
 
+    // Recognize identifiers, decimal numbers, operators, and their Unicode aliases.
+    // Each token keeps its source offset; unsupported characters fail immediately.
     private static IEnumerable<Token> Tokenize(string source)
     {
         for (var i = 0; i < source.Length;)

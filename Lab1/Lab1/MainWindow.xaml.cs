@@ -10,6 +10,7 @@ namespace Lab1
     {
         private ViewModel viewModel;
         private bool _isInitializing = true;
+        // Keep the last successful calculation for the triad button.
         private WpResult? wpResult;
 
         public MainWindow()
@@ -30,6 +31,7 @@ namespace Lab1
 
             _isInitializing = false;
 
+            // Changes to either WP input invalidate the displayed calculation.
             txtPostCondition.TextChanged += WpInputChanged;
             txtFragmentCode.TextChanged += WpInputChanged;
             RefreshPostDescription();
@@ -348,7 +350,7 @@ namespace Lab1
             RefreshPreIndicator();
         }
 
-        // WP-калькулятор
+        // WP calculator: clear stale results when the program or goal changes.
 
         private void WpInputChanged(object sender, TextChangedEventArgs e)
         {
@@ -361,6 +363,7 @@ namespace Lab1
             RefreshPostDescription();
         }
 
+        // Show a live explanation of Post; incomplete input gets a neutral prompt.
         private void RefreshPostDescription()
         {
             try
@@ -373,6 +376,7 @@ namespace Lab1
             }
         }
 
+        // Send both inputs to the engine and display the result or a parse error.
         private void CalculateWpButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -396,24 +400,28 @@ namespace Lab1
             }
         }
 
+        // Reveal the triad only for the current successful calculation.
         private void ShowTriadButton_Click(object sender, RoutedEventArgs e)
         {
             if (wpResult is not null)
                 txtTriad.Text = wpResult.Triad;
         }
 
+        // Presets fill the editable fields and use the same calculation path.
         private void PresetMaxButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "max > 100";
             txtFragmentCode.Text = "if (x1 >= x2) { max := x1; } else { max := x2; }";
         }
 
+        // The quadratic example covers both the real-root and fallback branches.
         private void PresetQuadraticButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "(D >= 0 && a*x*x + b*x + c == 0) || (D < 0 && x == -999)";
             txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) { x := (-b + sqrt(D)) / (2*a); } else { x := -999; }";
         }
 
+        // This example shows why assignment order matters when calculating wp.
         private void PresetSequenceButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "y = x - 9 && x > 15";

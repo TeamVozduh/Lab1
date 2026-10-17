@@ -251,7 +251,7 @@
             </Grid>
         </TabItem>
 
-        <!--ВКЛАДКА 2 -->
+        <!-- The WP tab keeps the program and goal beside their calculated result. -->
         <TabItem Header="Конструктор фрагмента">
             <Grid Margin="15">
                 <Grid.ColumnDefinitions>
@@ -260,7 +260,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!--ВВОД-->
+                <!-- Editable Post and program inputs are shared by presets and custom cases. -->
                 <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
 
@@ -285,12 +285,14 @@
                                  FontFamily="Consolas"
                                  Margin="0,0,0,5"
                                  Text="if (x1 >= x2) { max := x1; } else { max := x2; }"/>
+                        <!-- Keep the supported syntax visible next to the program editor. -->
                         <TextBlock Text="Поддерживается: x := expr; if (B) { S1 } else { S2 }; + - * / abs() sqrt(), сравнения, &amp;&amp;, ||"
                                    FontSize="11"
                                    Foreground="Gray"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,15"/>
 
+                        <!-- A triad can be shown only after a successful calculation. -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Button x:Name="btnCalculateWp"
                                     Content="Рассчитать wp"
@@ -304,6 +306,7 @@
                                     Click="ShowTriadButton_Click"/>
                         </StackPanel>
 
+                        <!-- These examples populate the inputs without a separate result path. -->
                         <TextBlock Text="Пресеты (обязательные сценарии)" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                             <Button x:Name="btnPresetMax"
@@ -328,13 +331,13 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!--Разделитель-->
+                <!-- Let the user resize the input and result panes. -->
                 <GridSplitter Grid.Column="1"
                               Width="5"
                               HorizontalAlignment="Stretch"
                               Background="#E2E8F0" DragDelta="GridSplitter_DragDelta"/>
 
-                <!--ВЫВОД-->
+                <!-- Read-only outputs show the trace, wp, explanation, and Hoare triad. -->
                 <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
 
