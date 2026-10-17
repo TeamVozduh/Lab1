@@ -43,17 +43,20 @@ public static class WpEngine
         var pre = PullBack(program, target, trace, string.Empty);
         var preText = WpLogic.Format(pre);
         var postText = WpLogic.Format(post);
+        var preExplanation = WpLogic.Explain(pre);
+        var postExplanation = WpLogic.Explain(post);
         trace.Add("Итоговое wp: " + preText);
 
         return new WpResult(
             postText,
-            "После выполнения: " + WpLogic.Describe(post),
+            "После выполнения операции каршеринга:" + Environment.NewLine + postExplanation,
             preText,
-            "До выполнения требуется: " + WpLogic.Describe(pre),
+            "До выполнения операции каршеринга требуется:" + Environment.NewLine + preExplanation,
             trace.ToString(),
             "{ " + preText + " } " + fragment.Trim() + " { " + postText + " }" +
-            Environment.NewLine + "Если до выполнения " + WpLogic.Describe(pre) +
-            ", то после выполнения " + WpLogic.Describe(post) + ".");
+            Environment.NewLine + "Смысл для каршеринга: если перед выполнением верно:" +
+            Environment.NewLine + preExplanation + Environment.NewLine +
+            "то после выполнения будет верно:" + Environment.NewLine + postExplanation);
     }
 
     /// <summary>Explains a valid Post while the user edits it, without analyzing a program.</summary>
@@ -61,7 +64,8 @@ public static class WpEngine
     {
         ArgumentNullException.ThrowIfNull(postcondition);
         var parsed = new WpParser(postcondition).ParsePostcondition();
-        return "После выполнения: " + WpLogic.Describe(WpLogic.Simplify(parsed));
+        return "После выполнения операции каршеринга:" + Environment.NewLine +
+               WpLogic.Explain(WpLogic.Simplify(parsed));
     }
 
     /// <summary>Applies assignment and branch wp rules in reverse execution order.</summary>

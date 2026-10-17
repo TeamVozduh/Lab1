@@ -267,9 +267,9 @@
                         <TextBox x:Name="txtPostCondition"
                                  Height="32"
                                  Margin="0,0,0,5"
-                                 Text="max > 100"/>
+                                 Text="rentalStarted == 1 &amp;&amp; carAvailable == 0 &amp;&amp; activeRent == 1"/>
                         <TextBlock x:Name="txtPostHumanReadable"
-                                   Text="Постусловие: максимум больше 100"
+                                   Text=""
                                    FontStyle="Italic"
                                    Foreground="Gray"
                                    TextWrapping="Wrap"
@@ -283,9 +283,14 @@
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas"
                                  Margin="0,0,0,5"
-                                 Text="if (x1 >= x2) { max := x1; } else { max := x2; }"/>
+                                 Text="if (carAvailable == 1 &amp;&amp; userLoggedIn == 1 &amp;&amp; activeRent == 0) { carAvailable := 0; activeRent := 1; rentalStarted := 1; } else { rentalStarted := 0; }"/>
                         <!-- Keep the supported syntax visible next to the program editor. -->
                         <TextBlock Text="Поддерживается: x := expr; if (B) { S1 } else { S2 }; + - * / abs() sqrt(), сравнения, &amp;&amp;, ||"
+                                   FontSize="11"
+                                   Foreground="Gray"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,5"/>
+                        <TextBlock Text="В примерах флаги состояния: 1 — да, 0 — нет. Фрагменты моделируют операции; значения первой вкладки не подставляются автоматически."
                                    FontSize="11"
                                    Foreground="Gray"
                                    TextWrapping="Wrap"
@@ -305,27 +310,51 @@
                                     Click="ShowTriadButton_Click"/>
                         </StackPanel>
 
-                        <!-- These examples populate the inputs without a separate result path. -->
-                        <TextBlock Text="Пресеты (обязательные сценарии)" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <!-- Car-sharing presets mirror the three operations from the first lab. -->
+                        <TextBlock Text="Операции каршеринга (ЛР1)" FontSize="14" FontWeight="Bold" Margin="0,10,0,5"/>
+                        <WrapPanel Margin="0,0,0,10">
+                            <Button x:Name="btnPresetRent"
+                                    Content="Начать аренду"
+                                    Width="135" Height="32"
+                                    Margin="0,0,5,5"
+                                    Background="#10B981"
+                                    Click="PresetRentButton_Click"/>
+                            <Button x:Name="btnPresetReturn"
+                                    Content="Завершить поездку"
+                                    Width="150" Height="32"
+                                    Margin="0,0,5,5"
+                                    Background="#10B981"
+                                    Click="PresetReturnButton_Click"/>
+                            <Button x:Name="btnPresetTopUp"
+                                    Content="Пополнить баланс"
+                                    Width="145" Height="32"
+                                    Margin="0,0,5,5"
+                                    Background="#10B981"
+                                    Click="PresetTopUpButton_Click"/>
+                        </WrapPanel>
+
+                        <!-- Required wp exercises retain their rules but use vehicle-related variables. -->
+                        <TextBlock Text="Учебные сценарии wp (ЛР2)" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <WrapPanel Margin="0,0,0,5">
                             <Button x:Name="btnPresetMax"
-                                    Content="Max из двух"
-                                    Width="120" Height="32"
-                                    Margin="0,0,5,0"
+                                    Content="Макс. пробег двух авто"
+                                    Width="180" Height="32"
+                                    Margin="0,0,5,5"
                                     Background="#10B981"
                                     Click="PresetMaxButton_Click"/>
                             <Button x:Name="btnPresetQuadratic"
-                                    Content="Квадратное уравнение"
-                                    Width="150" Height="32"
-                                    Margin="0,0,5,0"
+                                    Content="Квадратичная модель скорости"
+                                    Width="210" Height="32"
+                                    Margin="0,0,5,5"
                                     Background="#10B981"
                                     Click="PresetQuadraticButton_Click"/>
                             <Button x:Name="btnPresetSequence"
-                                    Content="Последовательность"
-                                    Width="130" Height="32"
+                                    Content="Пробег по этапам"
+                                    Width="150" Height="32"
+                                    Margin="0,0,5,5"
                                     Background="#10B981"
                                     Click="PresetSequenceButton_Click"/>
-                        </StackPanel>
+                        </WrapPanel>
 
                     </StackPanel>
                 </ScrollViewer>
@@ -353,7 +382,7 @@
 
                         <TextBlock Text="Итоговое wp (кратко)" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtWpShort"
-                                 Height="60"
+                                 Height="90"
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
@@ -363,7 +392,7 @@
 
                         <TextBlock Text="Итоговое wp (человеческим языком)" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtWpHumanReadable"
-                                 Height="80"
+                                 Height="140"
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
@@ -372,7 +401,7 @@
 
                         <TextBlock Text="Триада Хоара" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtTriad"
-                                 Height="80"
+                                 Height="140"
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"

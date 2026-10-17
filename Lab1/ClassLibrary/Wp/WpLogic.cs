@@ -369,16 +369,7 @@ internal static class WpLogic
         {
             BooleanConstant { Value: true } => "условие выполняется всегда",
             BooleanConstant => "условие невыполнимо",
-            ComparisonExpression comparison => Format(comparison.Left) + " " +
-                (comparison.Operator switch
-                {
-                    ComparisonOperator.Equal => "равно",
-                    ComparisonOperator.NotEqual => "не равно",
-                    ComparisonOperator.Less => "меньше",
-                    ComparisonOperator.LessOrEqual => "не больше",
-                    ComparisonOperator.Greater => "больше",
-                    _ => "не меньше"
-                }) + " " + Format(comparison.Right),
+            ComparisonExpression comparison => DescribeComparison(comparison),
             NotExpression not => "не (" + Describe(not.Operand) + ")",
             BooleanBinaryExpression binary => Describe(binary.Left, precedence) +
                 (binary.Operator == BooleanOperator.And ? " и " : " или ") +
@@ -387,4 +378,170 @@ internal static class WpLogic
         };
         return precedence < parentPrecedence ? "(" + text + ")" : text;
     }
+
+    /// <summary>Groups conjunctions as requirements and disjunctions as alternative scenarios.</summary>
+    public static string Explain(BooleanExpression expression)
+    {
+        if (expression is not BooleanBinaryExpression binary)
+            return Describe(expression);
+
+        var terms = new List<BooleanExpression>();
+        CollectTerms(expression, binary.Operator, terms);
+        if (binary.Operator == BooleanOperator.And)
+            return "Одновременно должны выполняться условия:" + Environment.NewLine +
+                   string.Join(Environment.NewLine, terms.Select(term => "• " + Describe(term)));
+
+        var alternatives = new List<string>();
+        for (var i = 0; i < terms.Count; i++)
+        {
+            var requirements = new List<BooleanExpression>();
+            CollectTerms(terms[i], BooleanOperator.And, requirements);
+            alternatives.Add((i + 1) + ". " +
+                             string.Join("; ", requirements.Select(requirement => Describe(requirement))));
+        }
+        return "Достаточно одного из вариантов:" + Environment.NewLine +
+               string.Join(Environment.NewLine, alternatives);
+    }
+
+    /// <summary>Flattens adjacent terms with the same operator without changing logical grouping.</summary>
+    private static void CollectTerms(BooleanExpression expression, BooleanOperator operation,
+                                     List<BooleanExpression> terms)
+    {
+        if (expression is BooleanBinaryExpression binary && binary.Operator == operation)
+        {
+            CollectTerms(binary.Left, operation, terms);
+            CollectTerms(binary.Right, operation, terms);
+        }
+        else
+        {
+            terms.Add(expression);
+        }
+    }
+
+    /// <summary>Explains state flags as car-sharing facts and other comparisons as numeric conditions.</summary>
+    private static string DescribeComparison(ComparisonExpression comparison)
+    {
+        if (comparison.Left is VariableExpression variable &&
+            comparison.Right is NumberExpression { Value: 0 or 1 } flag &&
+            comparison.Operator == ComparisonOperator.Equal &&
+            TryDescribeFlag(variable.Name, flag.Value == 1, out var fact))
+            return fact;
+
+        if (comparison.Left is ArithmeticBinaryExpression
+            {
+                Left: NumberExpression { Value: 2 },
+                Operator: ArithmeticOperator.Multiply,
+                Right: VariableExpression { Name: "a" }
+            } && comparison.Operator == ComparisonOperator.NotEqual &&
+            comparison.Right is NumberExpression { Value: 0 })
+            return "коэффициент a модели движения должен быть ненулевым";
+
+        var relation = comparison.Operator switch
+        {
+            ComparisonOperator.Equal => "равно",
+            ComparisonOperator.NotEqual => "не равно",
+            ComparisonOperator.Less => "меньше",
+            ComparisonOperator.LessOrEqual => "не больше",
+            ComparisonOperator.Greater => "больше",
+            _ => "не меньше"
+        };
+        return DescribeArithmetic(comparison.Left) + " " + relation + " " +
+               DescribeArithmetic(comparison.Right);
+    }
+
+    /// <summary>Maps the numeric 0/1 convention of preset flags to domain-specific statements.</summary>
+    private static bool TryDescribeFlag(string name, bool enabled, out string fact)
+    {
+        fact = name switch
+        {
+            "carAvailable" => enabled ? "автомобиль доступен" : "автомобиль недоступен",
+            "userLoggedIn" => enabled ? "пользователь авторизован" : "пользователь не авторизован",
+            "activeRent" => enabled ? "у пользователя есть активная аренда" : "у пользователя нет активной аренды",
+            "rentalStarted" => enabled ? "аренда успешно начата" : "аренда не начата",
+            "returnCompleted" => enabled ? "поездка успешно завершена" : "поездка не завершена",
+            "topUpCompleted" => enabled ? "баланс успешно пополнен" : "баланс не пополнен",
+            _ => string.Empty
+        };
+        return fact.Length != 0;
+    }
+
+    /// <summary>Explains arithmetic in car-sharing terms while retaining unknown variable names.</summary>
+    private static string DescribeArithmetic(ArithmeticExpression expression) => expression switch
+    {
+        NumberExpression => Format(expression),
+        VariableExpression variable => variable.Name switch
+        {
+            "balance" => "баланс пользователя в рублях",
+            "distance" => "расстояние поездки в километрах",
+            "tariff" => "тариф за километр в рублях",
+            "topUpAmount" => "сумма пополнения в рублях",
+            "car1Mileage" => "пробег первого автомобиля",
+            "car2Mileage" => "пробег второго автомобиля",
+            "maxMileage" => "максимальный пробег двух автомобилей",
+            "mileage" => "пробег автомобиля",
+            "checkpointKm" => "показание одометра на контрольной точке",
+            "carSpeed" => "рассчитанная скорость автомобиля",
+            "D" => "дискриминант модели движения",
+            "a" => "коэффициент a модели движения",
+            "b" => "коэффициент b модели движения",
+            "c" => "коэффициент c модели движения",
+            _ => variable.Name
+        },
+        NegativeExpression negative => "отрицательное значение (" + DescribeArithmetic(negative.Operand) + ")",
+        FunctionExpression { Name: "abs" } function => "модуль (" + DescribeArithmetic(function.Argument) + ")",
+        FunctionExpression { Name: "sqrt" } function => "квадратный корень из (" + DescribeArithmetic(function.Argument) + ")",
+        ArithmeticBinaryExpression
+        {
+            Left: ArithmeticBinaryExpression
+            {
+                Left: VariableExpression { Name: "b" },
+                Operator: ArithmeticOperator.Multiply,
+                Right: VariableExpression { Name: "b" }
+            },
+            Operator: ArithmeticOperator.Subtract,
+            Right: ArithmeticBinaryExpression
+            {
+                Left: ArithmeticBinaryExpression
+                {
+                    Left: NumberExpression { Value: 4 },
+                    Operator: ArithmeticOperator.Multiply,
+                    Right: VariableExpression { Name: "a" }
+                },
+                Operator: ArithmeticOperator.Multiply,
+                Right: VariableExpression { Name: "c" }
+            }
+        } => "дискриминант модели движения",
+        ArithmeticBinaryExpression
+        {
+            Left: NumberExpression { Value: 2 },
+            Operator: ArithmeticOperator.Multiply,
+            Right: VariableExpression { Name: "a" }
+        } => "удвоенный коэффициент a модели движения",
+        ArithmeticBinaryExpression
+        {
+            Left: VariableExpression { Name: "distance" },
+            Operator: ArithmeticOperator.Multiply,
+            Right: VariableExpression { Name: "tariff" }
+        } => "стоимость поездки",
+        ArithmeticBinaryExpression
+        {
+            Left: VariableExpression { Name: "balance" },
+            Operator: ArithmeticOperator.Subtract,
+            Right: ArithmeticBinaryExpression
+            {
+                Left: VariableExpression { Name: "distance" },
+                Operator: ArithmeticOperator.Multiply,
+                Right: VariableExpression { Name: "tariff" }
+            }
+        } => "остаток баланса после оплаты поездки",
+        ArithmeticBinaryExpression
+        {
+            Left: VariableExpression { Name: "balance" },
+            Operator: ArithmeticOperator.Add,
+            Right: VariableExpression { Name: "topUpAmount" }
+        } => "баланс после пополнения",
+        // Keep large symbolic formulas compact; the exact expression remains visible in the wp field.
+        ArithmeticBinaryExpression binary => "значение выражения «" + Format(binary) + "»",
+        _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
+    };
 }

@@ -410,25 +410,55 @@ namespace Lab1
                 txtTriad.Text = wpResult.Triad;
         }
 
-        /// <summary>Loads the two-value maximum example into the editable wp inputs.</summary>
+        /// <summary>Loads the rental contract scenario using numeric state flags.</summary>
+        private void PresetRentButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "rentalStarted == 1 && carAvailable == 0 && activeRent == 1";
+            txtFragmentCode.Text = "if (carAvailable == 1 && userLoggedIn == 1 && activeRent == 0) " +
+                "{ carAvailable := 0; activeRent := 1; rentalStarted := 1; } " +
+                "else { rentalStarted := 0; }";
+        }
+
+        /// <summary>Loads a completed-trip scenario with fare and balance requirements.</summary>
+        private void PresetReturnButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "returnCompleted == 1 && activeRent == 0 && balance >= 0";
+            txtFragmentCode.Text = "if (userLoggedIn == 1 && activeRent == 1 && distance > 0 && tariff > 0) " +
+                "{ balance := balance - distance * tariff; activeRent := 0; returnCompleted := 1; } " +
+                "else { returnCompleted := 0; }";
+        }
+
+        /// <summary>Loads a balance top-up scenario with authorization and a target amount.</summary>
+        private void PresetTopUpButton_Click(object sender, RoutedEventArgs e)
+        {
+            txtPostCondition.Text = "topUpCompleted == 1 && balance >= 1000";
+            txtFragmentCode.Text = "if (userLoggedIn == 1 && topUpAmount > 0) " +
+                "{ balance := balance + topUpAmount; topUpCompleted := 1; } " +
+                "else { topUpCompleted := 0; }";
+        }
+
+        /// <summary>Loads the required maximum example using the mileage of two cars.</summary>
         private void PresetMaxButton_Click(object sender, RoutedEventArgs e)
         {
-            txtPostCondition.Text = "max > 100";
-            txtFragmentCode.Text = "if (x1 >= x2) { max := x1; } else { max := x2; }";
+            txtPostCondition.Text = "maxMileage > 100";
+            txtFragmentCode.Text = "if (car1Mileage >= car2Mileage) " +
+                "{ maxMileage := car1Mileage; } else { maxMileage := car2Mileage; }";
         }
 
-        /// <summary>Loads the quadratic example with real-root and fallback branches.</summary>
+        /// <summary>Loads the required quadratic model for a calculated car speed.</summary>
         private void PresetQuadraticButton_Click(object sender, RoutedEventArgs e)
         {
-            txtPostCondition.Text = "(D >= 0 && a*x*x + b*x + c == 0) || (D < 0 && x == -999)";
-            txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) { x := (-b + sqrt(D)) / (2*a); } else { x := -999; }";
+            txtPostCondition.Text = "(D >= 0 && a*carSpeed*carSpeed + b*carSpeed + c == 0) " +
+                "|| (D < 0 && carSpeed == -999)";
+            txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) " +
+                "{ carSpeed := (-b + sqrt(D)) / (2*a); } else { carSpeed := -999; }";
         }
 
-        /// <summary>Loads an example whose wp depends on assignment order.</summary>
+        /// <summary>Loads the required sequence example as two odometer updates.</summary>
         private void PresetSequenceButton_Click(object sender, RoutedEventArgs e)
         {
-            txtPostCondition.Text = "y = x - 9 && x > 15";
-            txtFragmentCode.Text = "y := x + 1; x := x + 10;";
+            txtPostCondition.Text = "checkpointKm == mileage - 9 && mileage > 15";
+            txtFragmentCode.Text = "checkpointKm := mileage + 1; mileage := mileage + 10;";
         }
 
         /// <summary>Leaves splitter resizing to WPF; no extra view state is required.</summary>
