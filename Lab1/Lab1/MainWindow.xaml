@@ -6,9 +6,52 @@
         xmlns:local="clr-namespace:Lab1"
         mc:Ignorable="d"
         Title="Lab1 — Контракты и wp-калькулятор"
-        Height="700" Width="1100">
+        Height="700" Width="1100"
+        Background="#F4F7F6">
 
-    <TabControl Margin="5">
+    <Window.Resources>
+        <!--Стиль для кнопок-->
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <!--Синий цвет-->
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2563EB"/>
+                                <!--Темнее при наведении-->
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Background" Value="#9CA3AF"/>
+                                <!--Серый, если выключена-->
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!--Стиль для текстовых полей-->
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <TabControl Margin="5" Background="White">
 
         <!--ВКЛАДКА 1-->
         <TabItem Header="Операции каршеринга">
@@ -104,19 +147,19 @@
                             <TextBlock Text="Баланс" Margin="0,10,0,0"/>
                             <TextBox x:Name="txtBalance"
                                      Text="0"
-                                     Margin="0,2,0,0"
+                                     Margin="0,2,0,5"
                                      TextChanged="TextBox_ParameterChanged"/>
 
                             <TextBlock Text="Тариф (за единицу расстояния)" Margin="0,10,0,0"/>
                             <TextBox x:Name="txtTariff"
                                      Text="0"
-                                     Margin="0,2,0,0"
+                                     Margin="0,2,0,5"
                                      TextChanged="TextBox_ParameterChanged"/>
 
                             <TextBlock Text="Расстояние (целое число)" Margin="0,10,0,0"/>
                             <TextBox x:Name="txtDistance"
                                      Text="0"
-                                     Margin="0,2,0,0"
+                                     Margin="0,2,0,5"
                                      TextChanged="TextBox_ParameterChanged"/>
                         </StackPanel>
 
@@ -137,20 +180,20 @@
                             <TextBlock Text="Текущий баланс" Margin="0,10,0,0"/>
                             <TextBox x:Name="txtTopUpBalance"
                                      Text="0"
-                                     Margin="0,2,0,0"
+                                     Margin="0,2,0,5"
                                      TextChanged="TextBox_ParameterChanged"/>
 
                             <TextBlock Text="Сумма пополнения" Margin="0,10,0,0"/>
                             <TextBox x:Name="txtTopUpValue"
                                      Text="0"
-                                     Margin="0,2,0,0"
+                                     Margin="0,2,0,5"
                                      TextChanged="TextBox_ParameterChanged"/>
                         </StackPanel>
                     </StackPanel>
 
                     <Button Grid.Row="2"
                             Content="Выполнить"
-                            Height="30"
+                            Height="35"
                             Margin="0,10,0,0"
                             Click="ExecuteButton_Click"/>
 
@@ -164,7 +207,8 @@
                                  TextWrapping="Wrap"
                                  AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Auto"
-                                 VerticalContentAlignment="Top"/>
+                                 VerticalContentAlignment="Top"
+                                 Background="#F8FAFC"/>
                     </StackPanel>
 
                     <Grid Grid.Row="4" Margin="0,10,0,10">
@@ -178,7 +222,7 @@
                                        HorizontalAlignment="Center" Margin="0,0,0,5"/>
                             <Rectangle x:Name="preIndicator"
                                        Width="20" Height="20"
-                                       Fill="LightGray" Stroke="Gray"/>
+                                       Fill="LightGray" Stroke="Gray" RadiusX="10" RadiusY="10"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center">
@@ -186,20 +230,22 @@
                                        HorizontalAlignment="Center" Margin="0,0,0,5"/>
                             <Rectangle x:Name="postIndicator"
                                        Width="20" Height="20"
-                                       Fill="LightGray" Stroke="Gray"/>
+                                       Fill="LightGray" Stroke="Gray" RadiusX="10" RadiusY="10"/>
                         </StackPanel>
                     </Grid>
 
                     <Button Grid.Row="5"
                             Content="Сбросить"
-                            Height="30"
+                            Height="35"
                             Margin="0,10,0,0"
+                            Background="#EF4444"
                             Click="ResetButton_Click"/>
 
                     <Button Grid.Row="6"
                             Content="Показать контракт"
-                            Height="30"
+                            Height="35"
                             Margin="0,15,0,0"
+                            Background="#10B981"
                             Click="ContractShowButton_Click"/>
                 </Grid>
             </Grid>
@@ -220,7 +266,7 @@
 
                         <TextBlock Text="Цель (Post)" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
                         <TextBox x:Name="txtPostCondition"
-                                 Height="30"
+                                 Height="32"
                                  Margin="0,0,0,5"
                                  Text="max > 100"/>
                         <TextBlock x:Name="txtPostHumanReadable"
@@ -248,13 +294,13 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                             <Button x:Name="btnCalculateWp"
                                     Content="Рассчитать wp"
-                                    Width="150" Height="35"
+                                    Width="160" Height="38"
                                     Margin="0,0,10,0"
                                     Click="CalculateWpButton_Click"/>
                             <Button x:Name="btnShowTriad"
                                     Content="Показать триаду"
                                     IsEnabled="False"
-                                    Width="150" Height="35"
+                                    Width="160" Height="38"
                                     Click="ShowTriadButton_Click"/>
                         </StackPanel>
 
@@ -262,17 +308,20 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                             <Button x:Name="btnPresetMax"
                                     Content="Max из двух"
-                                    Width="120" Height="30"
+                                    Width="120" Height="32"
                                     Margin="0,0,5,0"
+                                    Background="#10B981"
                                     Click="PresetMaxButton_Click"/>
                             <Button x:Name="btnPresetQuadratic"
                                     Content="Квадратное уравнение"
-                                    Width="150" Height="30"
+                                    Width="150" Height="32"
                                     Margin="0,0,5,0"
+                                    Background="#10B981"
                                     Click="PresetQuadraticButton_Click"/>
                             <Button x:Name="btnPresetSequence"
                                     Content="Последовательность"
-                                    Width="130" Height="30"
+                                    Width="130" Height="32"
+                                    Background="#10B981"
                                     Click="PresetSequenceButton_Click"/>
                         </StackPanel>
 
@@ -283,7 +332,7 @@
                 <GridSplitter Grid.Column="1"
                               Width="5"
                               HorizontalAlignment="Stretch"
-                              Background="White" DragDelta="GridSplitter_DragDelta"/>
+                              Background="#E2E8F0" DragDelta="GridSplitter_DragDelta"/>
 
                 <!--ВЫВОД-->
                 <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
@@ -297,6 +346,7 @@
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas"
+                                 Background="#F8FAFC"
                                  Margin="0,0,0,15"/>
 
                         <TextBlock Text="Итоговое wp (кратко)" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
@@ -306,6 +356,7 @@
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas"
+                                 Background="#F8FAFC"
                                  Margin="0,0,0,15"/>
 
                         <TextBlock Text="Итоговое wp (человеческим языком)" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
@@ -314,6 +365,7 @@
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
+                                 Background="#F8FAFC"
                                  Margin="0,0,0,15"/>
 
                         <TextBlock Text="Триада Хоара" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
@@ -323,6 +375,7 @@
                                  TextWrapping="Wrap"
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas"
+                                 Background="#F8FAFC"
                                  Margin="0,0,0,15"/>
 
                     </StackPanel>
