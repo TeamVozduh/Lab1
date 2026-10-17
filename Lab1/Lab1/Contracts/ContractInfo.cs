@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lab1
 {
+    /// <summary>Holds the terms and boundary examples displayed for one operation.</summary>
     public sealed record ContractInfo(
         string Title,
         string Pre,

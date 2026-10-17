@@ -2,11 +2,13 @@ using System.Globalization;
 
 namespace ClassLibrary.Wp;
 
-// Parser errors keep the source position so the UI can point to invalid input.
+/// <summary>Reports invalid wp input together with its zero-based source offset.</summary>
 public sealed class WpParseException : FormatException
 {
+    /// <summary>Gets the source offset of the offending token or character.</summary>
     public int Position { get; }
 
+    /// <summary>Creates a parse error whose message uses a one-based position.</summary>
     public WpParseException(string message, int position)
         : base($"{message} (позиция {position + 1}).")
     {
@@ -14,36 +16,50 @@ public sealed class WpParseException : FormatException
     }
 }
 
-// These nodes represent arithmetic expressions without evaluating variables yet.
+/// <summary>Base node for arithmetic expressions in assignments and comparisons.</summary>
 internal abstract record ArithmeticExpression;
+/// <summary>A decimal literal parsed independently of the machine's locale.</summary>
 internal sealed record NumberExpression(decimal Value) : ArithmeticExpression;
+/// <summary>A symbolic numeric variable.</summary>
 internal sealed record VariableExpression(string Name) : ArithmeticExpression;
+/// <summary>A unary minus applied to an arithmetic expression.</summary>
 internal sealed record NegativeExpression(ArithmeticExpression Operand) : ArithmeticExpression;
+/// <summary>A binary arithmetic operation with explicit operands.</summary>
 internal sealed record ArithmeticBinaryExpression(
     ArithmeticExpression Left, ArithmeticOperator Operator, ArithmeticExpression Right) : ArithmeticExpression;
+/// <summary>A supported unary function call, currently abs or sqrt.</summary>
 internal sealed record FunctionExpression(string Name, ArithmeticExpression Argument) : ArithmeticExpression;
 
+/// <summary>Operators accepted in arithmetic expressions.</summary>
 internal enum ArithmeticOperator { Add, Subtract, Multiply, Divide }
 
-// Boolean nodes form comparisons and conditions used by if and Post.
+/// <summary>Base node for Boolean conditions and postconditions.</summary>
 internal abstract record BooleanExpression;
+/// <summary>A literal true or false condition.</summary>
 internal sealed record BooleanConstant(bool Value) : BooleanExpression;
+/// <summary>A comparison between two arithmetic expressions.</summary>
 internal sealed record ComparisonExpression(
     ArithmeticExpression Left, ComparisonOperator Operator, ArithmeticExpression Right) : BooleanExpression;
+/// <summary>A logical negation of a condition.</summary>
 internal sealed record NotExpression(BooleanExpression Operand) : BooleanExpression;
+/// <summary>A conjunction or disjunction of two conditions.</summary>
 internal sealed record BooleanBinaryExpression(
     BooleanExpression Left, BooleanOperator Operator, BooleanExpression Right) : BooleanExpression;
 
+/// <summary>Comparison operators accepted in Boolean conditions.</summary>
 internal enum ComparisonOperator { Equal, NotEqual, Less, LessOrEqual, Greater, GreaterOrEqual }
+/// <summary>Short-circuit Boolean operators accepted in conditions.</summary>
 internal enum BooleanOperator { And, Or }
 
-// A program is a sequence of assignments and complete if/else statements.
+/// <summary>Base node for a statement in the loop-free input language.</summary>
 internal abstract record Statement;
+/// <summary>An assignment of an arithmetic expression to a variable.</summary>
 internal sealed record AssignmentStatement(string Variable, ArithmeticExpression Value) : Statement;
+/// <summary>A conditional with explicit then and else branches.</summary>
 internal sealed record IfStatement(
     BooleanExpression Condition, IReadOnlyList<Statement> ThenBranch, IReadOnlyList<Statement> ElseBranch) : Statement;
 
-// Tokens retain their original position for precise syntax errors.
+/// <summary>Token categories recognized by the wp lexer.</summary>
 internal enum TokenKind
 {
     End, Identifier, Number, If, Else, Assign, Semicolon, LeftBrace, RightBrace,
@@ -51,19 +67,22 @@ internal enum TokenKind
     Less, LessOrEqual, Equal, NotEqual, Not, And, Or
 }
 
+/// <summary>A token with its spelling and zero-based source offset.</summary>
 internal readonly record struct Token(TokenKind Kind, string Text, int Position);
 
+/// <summary>Parses a loop-free program or a Boolean Post into syntax trees.</summary>
 internal sealed class WpParser
 {
     private readonly List<Token> tokens;
     private int index;
 
+    /// <summary>Tokenizes the source for either parser entry point.</summary>
     public WpParser(string source)
     {
         tokens = Tokenize(source).ToList();
     }
 
-    // Program and Post share one tokenizer but have different starting rules.
+    /// <summary>Parses a nonempty statement sequence and rejects trailing input.</summary>
     public IReadOnlyList<Statement> ParseProgram()
     {
         var statements = ParseSequence(TokenKind.End);
@@ -73,6 +92,7 @@ internal sealed class WpParser
         return statements;
     }
 
+    /// <summary>Parses one complete Boolean postcondition.</summary>
     public BooleanExpression ParsePostcondition()
     {
         var result = ParseOr();
@@ -80,7 +100,7 @@ internal sealed class WpParser
         return result;
     }
 
-    // Read statements until the closing brace or end of input; require separators.
+    /// <summary>Reads semicolon-separated statements up to a closing brace or end of input.</summary>
     private List<Statement> ParseSequence(TokenKind end)
     {
         var result = new List<Statement>();
@@ -99,7 +119,7 @@ internal sealed class WpParser
         return result;
     }
 
-    // Every conditional must include else, so both possible paths are explicit.
+    /// <summary>Parses an assignment or a conditional with a mandatory else branch.</summary>
     private Statement ParseStatement()
     {
         if (Match(TokenKind.If))
@@ -122,7 +142,7 @@ internal sealed class WpParser
         return new AssignmentStatement(name.Text, ParseAddSubtract());
     }
 
-    // Boolean precedence, from low to high: OR, AND, NOT, comparison.
+    /// <summary>Parses OR at the lowest Boolean precedence level.</summary>
     private BooleanExpression ParseOr()
     {
         var left = ParseAnd();
@@ -131,6 +151,7 @@ internal sealed class WpParser
         return left;
     }
 
+    /// <summary>Parses AND before combining terms with OR.</summary>
     private BooleanExpression ParseAnd()
     {
         var left = ParseNot();
@@ -139,6 +160,7 @@ internal sealed class WpParser
         return left;
     }
 
+    /// <summary>Parses negation, literals, grouped conditions, or comparisons.</summary>
     private BooleanExpression ParseNot()
     {
         if (Match(TokenKind.Not))
@@ -165,6 +187,7 @@ internal sealed class WpParser
         return ParseComparison();
     }
 
+    /// <summary>Requires a comparison operator between arithmetic expressions.</summary>
     private BooleanExpression ParseComparison()
     {
         var left = ParseAddSubtract();
@@ -182,7 +205,7 @@ internal sealed class WpParser
         return new ComparisonExpression(left, operation, ParseAddSubtract());
     }
 
-    // Arithmetic precedence, from low to high: addition, multiplication, unary sign.
+    /// <summary>Parses left-associative addition and subtraction.</summary>
     private ArithmeticExpression ParseAddSubtract()
     {
         var left = ParseMultiplyDivide();
@@ -195,6 +218,7 @@ internal sealed class WpParser
         return left;
     }
 
+    /// <summary>Parses multiplication and division before addition and subtraction.</summary>
     private ArithmeticExpression ParseMultiplyDivide()
     {
         var left = ParseUnary();
@@ -207,6 +231,7 @@ internal sealed class WpParser
         return left;
     }
 
+    /// <summary>Applies leading signs to an arithmetic primary expression.</summary>
     private ArithmeticExpression ParseUnary()
     {
         if (Match(TokenKind.Plus)) return ParseUnary();
@@ -214,7 +239,7 @@ internal sealed class WpParser
         return ParseArithmeticPrimary();
     }
 
-    // Parse literals, variables, supported functions, and parenthesized expressions.
+    /// <summary>Parses numbers, variables, supported functions, and arithmetic groups.</summary>
     private ArithmeticExpression ParseArithmeticPrimary()
     {
         if (Current.Kind == TokenKind.Number)
@@ -248,11 +273,13 @@ internal sealed class WpParser
         throw new WpParseException("Ожидается число, переменная или выражение в скобках", Current.Position);
     }
 
-    // These helpers inspect or consume tokens; Expect reports the next token's position.
+    /// <summary>Gets the next token without consuming it.</summary>
     private Token Current => tokens[index];
 
+    /// <summary>Consumes and returns the next token.</summary>
     private Token Advance() => tokens[index++];
 
+    /// <summary>Consumes the next token only when it has the requested kind.</summary>
     private bool Match(TokenKind kind)
     {
         if (Current.Kind != kind) return false;
@@ -260,14 +287,14 @@ internal sealed class WpParser
         return true;
     }
 
+    /// <summary>Consumes a required token or reports its source position.</summary>
     private Token Expect(TokenKind kind, string message)
     {
         if (Current.Kind != kind) throw new WpParseException(message, Current.Position);
         return Advance();
     }
 
-    // Recognize identifiers, decimal numbers, operators, and their Unicode aliases.
-    // Each token keeps its source offset; unsupported characters fail immediately.
+    /// <summary>Recognizes keywords, decimal literals, operators, and Unicode aliases.</summary>
     private static IEnumerable<Token> Tokenize(string source)
     {
         for (var i = 0; i < source.Length;)

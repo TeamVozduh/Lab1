@@ -2,11 +2,12 @@ using System.Globalization;
 
 namespace ClassLibrary.Wp;
 
+/// <summary>Builds, simplifies, substitutes, and renders symbolic wp conditions.</summary>
 internal static class WpLogic
 {
     private static readonly BooleanExpression True = new BooleanConstant(true);
 
-    // Normalize a condition recursively before using or displaying it.
+    /// <summary>Normalizes a Boolean tree from its leaves toward its root.</summary>
     public static BooleanExpression Simplify(BooleanExpression expression) => expression switch
     {
         BooleanConstant => expression,
@@ -18,8 +19,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное логическое выражение")
     };
 
-    // Expressions are valid only when division avoids zero and sqrt receives
-    // a nonnegative argument. Child expressions must also be valid.
+    /// <summary>Requires nonzero divisors and nonnegative square-root arguments recursively.</summary>
     public static BooleanExpression Defined(ArithmeticExpression expression) => expression switch
     {
         NumberExpression or VariableExpression => True,
@@ -35,8 +35,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
     };
 
-    // AND and OR evaluate their right side only when the left side requires it.
-    // This lets a guard protect a partial expression in the right side.
+    /// <summary>Accounts for short-circuit evaluation when finding a condition's domain.</summary>
     public static BooleanExpression Defined(BooleanExpression expression) => expression switch
     {
         BooleanConstant => True,
@@ -50,8 +49,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное логическое выражение")
     };
 
-    // Replace the assigned variable throughout the target condition, including
-    // arithmetic expressions nested inside comparisons.
+    /// <summary>Replaces an assigned variable throughout a Boolean target condition.</summary>
     public static BooleanExpression Substitute(BooleanExpression expression, string variable,
                                                ArithmeticExpression replacement) => expression switch
     {
@@ -69,6 +67,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное логическое выражение")
     };
 
+    /// <summary>Performs the same substitution inside nested arithmetic expressions.</summary>
     private static ArithmeticExpression Substitute(ArithmeticExpression expression, string variable,
                                                    ArithmeticExpression replacement) => expression switch
     {
@@ -83,8 +82,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
     };
 
-    // Fold constants and contradictions while combining required conditions.
-    // A comparison can also simplify the other side when it is known to hold.
+    /// <summary>Combines requirements while folding constants and known contradictions.</summary>
     public static BooleanExpression And(BooleanExpression left, BooleanExpression right)
     {
         if (left is BooleanConstant { Value: false } || right is BooleanConstant { Value: false })
@@ -104,7 +102,7 @@ internal static class WpLogic
         return new BooleanBinaryExpression(left, BooleanOperator.And, right);
     }
 
-    // Reuse a known comparison inside a larger condition without solving it again.
+    /// <summary>Simplifies a nested condition under a comparison already known to hold.</summary>
     private static BooleanExpression SimplifyAssuming(BooleanExpression expression, BooleanExpression fact)
     {
         if (expression == fact) return new BooleanConstant(true);
@@ -120,7 +118,7 @@ internal static class WpLogic
         };
     }
 
-    // Apply the corresponding constant, duplicate, and opposite rules for OR.
+    /// <summary>Combines alternatives while folding constants and duplicate terms.</summary>
     public static BooleanExpression Or(BooleanExpression left, BooleanExpression right)
     {
         if (left is BooleanConstant { Value: true } || right is BooleanConstant { Value: true })
@@ -132,7 +130,7 @@ internal static class WpLogic
         return new BooleanBinaryExpression(left, BooleanOperator.Or, right);
     }
 
-    // Push negation into simple comparisons and remove double negation.
+    /// <summary>Negates a condition and reverses simple comparisons directly.</summary>
     public static BooleanExpression Not(BooleanExpression value) => value switch
     {
         BooleanConstant constant => new BooleanConstant(!constant.Value),
@@ -150,8 +148,7 @@ internal static class WpLogic
         _ => new NotExpression(value)
     };
 
-    // Evaluate constant comparisons and simplify equal sides before retaining
-    // a symbolic comparison.
+    /// <summary>Folds a comparison when possible and moves a constant offset to the right.</summary>
     public static BooleanExpression Compare(ArithmeticExpression left, ComparisonOperator operation,
                                             ArithmeticExpression right)
     {
@@ -181,7 +178,7 @@ internal static class WpLogic
         return new ComparisonExpression(left, operation, right);
     }
 
-    // Simplify arithmetic from the leaves up so substitution produces readable wp.
+    /// <summary>Simplifies arithmetic recursively without evaluating symbolic variables.</summary>
     public static ArithmeticExpression Simplify(ArithmeticExpression expression) => expression switch
     {
         NumberExpression or VariableExpression => expression,
@@ -192,6 +189,7 @@ internal static class WpLogic
         _ => throw new InvalidOperationException("Неизвестное арифметическое выражение")
     };
 
+    /// <summary>Removes double negation or folds a safely negated constant.</summary>
     private static ArithmeticExpression Negate(ArithmeticExpression value)
     {
         if (value is NegativeExpression nested) return nested.Operand;
@@ -200,7 +198,7 @@ internal static class WpLogic
         return new NegativeExpression(value);
     }
 
-    // Fold safe constants and neutral values, then combine trailing offsets.
+    /// <summary>Folds safe arithmetic, neutral elements, and adjacent constant offsets.</summary>
     private static ArithmeticExpression Arithmetic(ArithmeticExpression left, ArithmeticOperator operation,
                                                    ArithmeticExpression right)
     {
@@ -229,7 +227,7 @@ internal static class WpLogic
         return new ArithmeticBinaryExpression(left, operation, right);
     }
 
-    // Split x + 2 - 3 into its symbolic core and one constant offset.
+    /// <summary>Separates a trailing chain of additions and subtractions from its symbolic core.</summary>
     private static bool TryOffset(ArithmeticExpression expression, out ArithmeticExpression core,
                                   out decimal offset)
     {
@@ -255,6 +253,7 @@ internal static class WpLogic
         return false;
     }
 
+    /// <summary>Rebuilds a symbolic expression with one normalized constant offset.</summary>
     private static ArithmeticExpression WithOffset(ArithmeticExpression core, decimal offset)
     {
         if (offset == 0) return core;
@@ -265,7 +264,7 @@ internal static class WpLogic
                 : new ArithmeticBinaryExpression(core, ArithmeticOperator.Add, new NumberExpression(offset));
     }
 
-    // Keep operations symbolic if decimal arithmetic could round or overflow.
+    /// <summary>Folds exact decimal operations; division stays symbolic to avoid rounding.</summary>
     private static bool TryCalculate(decimal left, ArithmeticOperator operation, decimal right, out decimal result)
     {
         result = 0;
@@ -285,13 +284,14 @@ internal static class WpLogic
         catch (OverflowException) { return false; }
     }
 
+    /// <summary>Performs checked decimal subtraction without leaking overflow exceptions.</summary>
     private static bool TrySubtract(decimal left, decimal right, out decimal result)
     {
         try { result = checked(left - right); return true; }
         catch (OverflowException) { result = 0; return false; }
     }
 
-    // Render arithmetic with parentheses only where precedence requires them.
+    /// <summary>Renders arithmetic with parentheses that preserve operator precedence.</summary>
     public static string Format(ArithmeticExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch
@@ -322,7 +322,7 @@ internal static class WpLogic
         return precedence < parentPrecedence ? "(" + text + ")" : text;
     }
 
-    // Render a condition in syntax that the parser can read again.
+    /// <summary>Renders a condition in the parser's symbolic input syntax.</summary>
     public static string Format(BooleanExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch
@@ -355,7 +355,7 @@ internal static class WpLogic
         return precedence < parentPrecedence ? "(" + text + ")" : text;
     }
 
-    // Explain the same condition in plain language for the UI.
+    /// <summary>Renders a condition as a Russian-language explanation for the UI.</summary>
     public static string Describe(BooleanExpression expression, int parentPrecedence = 0)
     {
         var precedence = expression switch

@@ -6,13 +6,16 @@ using System.Windows.Media;
 
 namespace Lab1
 {
+    /// <summary>Hosts the car-sharing contract demo and the wp calculator.</summary>
     public partial class MainWindow : Window
     {
         private ViewModel viewModel;
+        // XAML change events can fire before the constructor finishes wiring the view.
         private bool _isInitializing = true;
         // Keep the last successful calculation for the triad button.
         private WpResult? wpResult;
 
+        /// <summary>Initializes both tabs and connects live wp input validation.</summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -37,13 +40,12 @@ namespace Lab1
             RefreshPostDescription();
         }
 
-        //Выбор операции
-
+        /// <summary>Resets the previous result and shows inputs for the selected operation.</summary>
         private void OperationsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selected = operationsListBox.SelectedItem as string;
 
-            //Общий сброс
+            // A selection change invalidates the previous operation's result.
             resultTextBox.Clear();
             postIndicator.Fill = Brushes.LightGray;
             preIndicator.Fill = Brushes.LightGray;
@@ -76,8 +78,7 @@ namespace Lab1
             }
         }
 
-        // Общие обработчики изменений
-
+        /// <summary>Invalidates the previous Post result and rechecks numeric inputs.</summary>
         private void TextBox_ParameterChanged(object sender, TextChangedEventArgs e)
         {
             if (_isInitializing) return;
@@ -87,6 +88,7 @@ namespace Lab1
             RefreshPreIndicator();
         }
 
+        /// <summary>Invalidates the previous Post result and rechecks checkbox inputs.</summary>
         private void CheckBox_StateChanged(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
@@ -96,6 +98,7 @@ namespace Lab1
             RefreshPreIndicator();
         }
 
+        /// <summary>Updates the Pre indicator for the selected operation.</summary>
         private void RefreshPreIndicator()
         {
             var selected = operationsListBox.SelectedItem as string;
@@ -108,6 +111,7 @@ namespace Lab1
                 UpdateTopUpPreIndicator();
         }
 
+        /// <summary>Reads top-up inputs and displays whether their precondition holds.</summary>
         private void UpdateTopUpPreIndicator()
         {
             bool userLoggedIn = chkTopUpUserLoggedIn.IsChecked == true;
@@ -122,8 +126,7 @@ namespace Lab1
                 : Brushes.Red;
         }
 
-        // Pre-индикаторы
-
+        /// <summary>Reads rental inputs and displays whether their precondition holds.</summary>
         private void UpdateRentPreIndicator()
         {
             bool carAvailable = chkCarAvailable.IsChecked == true;
@@ -137,6 +140,7 @@ namespace Lab1
                 : Brushes.Red;
         }
 
+        /// <summary>Reads return inputs and displays whether their precondition holds.</summary>
         private void UpdateReturnPreIndicator()
         {
             bool userLoggedIn = chkReturnUserLoggedIn.IsChecked == true;
@@ -154,9 +158,7 @@ namespace Lab1
                 : Brushes.Red;
         }
 
-        //Выполнить
-
-
+        /// <summary>Routes the Execute button to the selected car-sharing operation.</summary>
         private void ExecuteButton_Click(object sender, RoutedEventArgs e)
         {
             var selected = operationsListBox.SelectedItem as string;
@@ -174,6 +176,7 @@ namespace Lab1
                                 MessageBoxImage.Information);
         }
 
+        /// <summary>Runs a valid rental and reports its Post result to the user.</summary>
         private void ExecuteRent()
         {
             if (!viewModel.GetCarRentPre())
@@ -208,6 +211,7 @@ namespace Lab1
             SetRentParametersEnabled(false);
         }
 
+        /// <summary>Closes a valid rental and reports its new balance and Post result.</summary>
         private void ExecuteReturn()
         {
             if (!viewModel.GetCarReturnPre())
@@ -250,6 +254,7 @@ namespace Lab1
             SetReturnParametersEnabled(false);
         }
 
+        /// <summary>Runs a valid top-up and reports its new balance and Post result.</summary>
         private void ExecuteTopUp()
         {
             if (!viewModel.GetBalanceTopUpPre())
@@ -291,9 +296,7 @@ namespace Lab1
             SetTopUpParametersEnabled(false);
         }
 
-        //Показать контракт
-
-
+        /// <summary>Opens the selected operation's contract in a modal dialog.</summary>
         private void ContractShowButton_Click(object sender, RoutedEventArgs e)
         {
             var selected = operationsListBox.SelectedItem as string;
@@ -311,8 +314,7 @@ namespace Lab1
             contractWindow.ShowDialog();
         }
 
-        //Блокировка/разблокировка параметров
-
+        /// <summary>Controls whether rental parameters can be edited after execution.</summary>
         private void SetRentParametersEnabled(bool enabled)
         {
             chkCarAvailable.IsEnabled = enabled;
@@ -320,6 +322,7 @@ namespace Lab1
             chkActiveRent.IsEnabled = enabled;
         }
 
+        /// <summary>Controls whether return parameters can be edited after execution.</summary>
         private void SetReturnParametersEnabled(bool enabled)
         {
             chkReturnUserLoggedIn.IsEnabled = enabled;
@@ -328,6 +331,8 @@ namespace Lab1
             txtTariff.IsEnabled = enabled;
             txtDistance.IsEnabled = enabled;
         }
+
+        /// <summary>Controls whether top-up parameters can be edited after execution.</summary>
         private void SetTopUpParametersEnabled(bool enabled)
         {
             chkTopUpUserLoggedIn.IsEnabled = enabled;
@@ -336,8 +341,7 @@ namespace Lab1
         }
 
 
-        //Сброс
-
+        /// <summary>Unlocks operation inputs and clears the displayed execution result.</summary>
         private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
             SetRentParametersEnabled(true);
@@ -350,8 +354,7 @@ namespace Lab1
             RefreshPreIndicator();
         }
 
-        // WP calculator: clear stale results when the program or goal changes.
-
+        /// <summary>Clears stale wp output whenever the fragment or Post changes.</summary>
         private void WpInputChanged(object sender, TextChangedEventArgs e)
         {
             wpResult = null;
@@ -363,7 +366,7 @@ namespace Lab1
             RefreshPostDescription();
         }
 
-        // Show a live explanation of Post; incomplete input gets a neutral prompt.
+        /// <summary>Shows a live Post explanation or a prompt for incomplete input.</summary>
         private void RefreshPostDescription()
         {
             try
@@ -376,7 +379,7 @@ namespace Lab1
             }
         }
 
-        // Send both inputs to the engine and display the result or a parse error.
+        /// <summary>Calculates wp and fills the result panes, or shows a parse error.</summary>
         private void CalculateWpButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -400,34 +403,35 @@ namespace Lab1
             }
         }
 
-        // Reveal the triad only for the current successful calculation.
+        /// <summary>Shows the Hoare triple from the last successful calculation.</summary>
         private void ShowTriadButton_Click(object sender, RoutedEventArgs e)
         {
             if (wpResult is not null)
                 txtTriad.Text = wpResult.Triad;
         }
 
-        // Presets fill the editable fields and use the same calculation path.
+        /// <summary>Loads the two-value maximum example into the editable wp inputs.</summary>
         private void PresetMaxButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "max > 100";
             txtFragmentCode.Text = "if (x1 >= x2) { max := x1; } else { max := x2; }";
         }
 
-        // The quadratic example covers both the real-root and fallback branches.
+        /// <summary>Loads the quadratic example with real-root and fallback branches.</summary>
         private void PresetQuadraticButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "(D >= 0 && a*x*x + b*x + c == 0) || (D < 0 && x == -999)";
             txtFragmentCode.Text = "D := b*b - 4*a*c; if (D >= 0) { x := (-b + sqrt(D)) / (2*a); } else { x := -999; }";
         }
 
-        // This example shows why assignment order matters when calculating wp.
+        /// <summary>Loads an example whose wp depends on assignment order.</summary>
         private void PresetSequenceButton_Click(object sender, RoutedEventArgs e)
         {
             txtPostCondition.Text = "y = x - 9 && x > 15";
             txtFragmentCode.Text = "y := x + 1; x := x + 10;";
         }
 
+        /// <summary>Leaves splitter resizing to WPF; no extra view state is required.</summary>
         private void GridSplitter_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
 

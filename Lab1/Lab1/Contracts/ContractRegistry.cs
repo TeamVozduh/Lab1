@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Lab1.Contracts
 {
+    /// <summary>Provides the contract descriptions shown in the car-sharing UI.</summary>
     public static class ContractRegistry
     {
         public const string RentCarKey = "Начать аренду";
@@ -69,11 +70,13 @@ namespace Lab1.Contracts
                         "→ Guard.Requires бросает исключение: пользователь не авторизован."),
             };
 
+        /// <summary>Returns a registered contract or throws when the key is unknown.</summary>
         public static ContractInfo Get(string key) =>
             _contracts.TryGetValue(key, out var info)
                 ? info
                 : throw new KeyNotFoundException($"Контракт '{key}' не найден.");
 
+        /// <summary>Looks up a contract without throwing for an unknown key.</summary>
         public static bool TryGet(string key, out ContractInfo info) =>
             _contracts.TryGetValue(key, out info!);
     }

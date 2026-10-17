@@ -11,10 +11,9 @@
         Icon="icon.png">
 
     <Window.Resources>
-        <!--Стиль для кнопок-->
+        <!-- Shared button template keeps normal, hover, and disabled states consistent. -->
         <Style TargetType="Button">
             <Setter Property="Background" Value="#3B82F6"/>
-            <!--Синий цвет-->
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="10,5"/>
@@ -29,11 +28,9 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="#2563EB"/>
-                                <!--Темнее при наведении-->
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="border" Property="Background" Value="#9CA3AF"/>
-                                <!--Серый, если выключена-->
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -41,7 +38,7 @@
             </Setter>
         </Style>
 
-        <!--Стиль для текстовых полей-->
+        <!-- Shared text-field style applies to both application tabs. -->
         <Style TargetType="TextBox">
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="#CBD5E1"/>
@@ -54,7 +51,7 @@
 
     <TabControl Margin="5" Background="White">
 
-        <!--ВКЛАДКА 1-->
+        <!-- Contract demo: select an operation, enter its state, and inspect Pre/Post. -->
         <TabItem Header="Операции каршеринга">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -62,7 +59,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!--Левая половина-->
+                <!-- Operation selection determines which parameter group appears on the right. -->
                 <Grid Grid.Column="0" Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -80,7 +77,7 @@
                              SelectionChanged="OperationsListBox_SelectionChanged"/>
                 </Grid>
 
-                <!--Правая половина-->
+                <!-- The input and result panes share the selected operation's state. -->
                 <Grid Grid.Column="1" Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -101,7 +98,7 @@
 
                     <StackPanel Grid.Row="1" VerticalAlignment="Top">
 
-                        <!--Начать аренду-->
+                        <!-- Rental inputs. -->
                         <StackPanel x:Name="rentParametersGroup"
                                     Visibility="Collapsed"
                                     Margin="0,0,0,10">
@@ -126,7 +123,7 @@
                                       Unchecked="CheckBox_StateChanged"/>
                         </StackPanel>
 
-                        <!--Завершить аренду-->
+                        <!-- Return inputs include the values used to calculate the charge. -->
                         <StackPanel x:Name="returnParametersGroup"
                                     Visibility="Collapsed"
                                     Margin="0,0,0,10">
@@ -164,7 +161,7 @@
                                      TextChanged="TextBox_ParameterChanged"/>
                         </StackPanel>
 
-                        <!--Пополнить баланс-->
+                        <!-- Top-up inputs. -->
                         <StackPanel x:Name="topUpParametersGroup"
                                     Visibility="Collapsed"
                                     Margin="0,0,0,10">
@@ -212,6 +209,7 @@
                                  Background="#F8FAFC"/>
                     </StackPanel>
 
+                    <!-- Indicators reflect the current Pre check and last Post check. -->
                     <Grid Grid.Row="4" Margin="0,10,0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

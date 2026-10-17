@@ -17,7 +17,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок -->
+        <!-- The selected contract supplies this heading and all sections below. -->
         <TextBlock x:Name="contractHeader"
                    Grid.Row="0"
                    Text="Контракт операции"
@@ -29,7 +29,7 @@
                       VerticalScrollBarVisibility="Auto">
             <StackPanel>
 
-                <!-- 1. Предисловия (Pre) -->
+                <!-- Preconditions and postconditions are shown before effects and failures. -->
                 <GroupBox Header="Предисловия (Pre)" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="preBlock"
                                Text=""
@@ -37,7 +37,6 @@
                                MinHeight="40"/>
                 </GroupBox>
 
-                <!-- 2. Постусловия (Post) -->
                 <GroupBox Header="Постусловия (Post)" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="postBlock"
                                Text=""
@@ -45,7 +44,6 @@
                                MinHeight="40"/>
                 </GroupBox>
 
-                <!-- 3. Эффекты -->
                 <GroupBox Header="Эффекты" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="effectsBlock"
                                Text=""
@@ -53,7 +51,6 @@
                                MinHeight="40"/>
                 </GroupBox>
 
-                <!-- 4. Исключения -->
                 <GroupBox Header="Исключения" Padding="8" Margin="0,0,0,10">
                     <TextBlock x:Name="exceptionsBlock"
                                Text=""
@@ -61,7 +58,7 @@
                                MinHeight="40"/>
                 </GroupBox>
 
-                <!-- Граничные примеры -->
+                <!-- Paired examples show both an accepted and a rejected input. -->
                 <TextBlock Text="Граничные примеры"
                            FontSize="14"
                            FontWeight="Bold"
@@ -83,7 +80,7 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Кнопка закрытия -->
+        <!-- Close the modal window without changing operation state. -->
         <Button Grid.Row="2"
                 Content="Закрыть"
                 Width="100"

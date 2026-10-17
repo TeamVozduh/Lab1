@@ -5,7 +5,7 @@ using System.Windows;
 namespace Lab1
 {
     /// <summary>
-    /// Interaction logic for App.xaml
+    /// Starts the WPF application and loads its configured main window.
     /// </summary>
     public partial class App : Application
     {
