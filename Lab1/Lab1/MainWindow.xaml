@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Lab1"
+        xmlns:loops="clr-namespace:Lab1.Loops"
         mc:Ignorable="d"
         Title="Проект команды Воздух"
         Height="700" Width="1100"
@@ -413,5 +414,7 @@
                 </ScrollViewer>
             </Grid>
         </TabItem>
+        <!-- ЛР3 использует отдельную ViewModel; вкладки ЛР1 и ЛР2 сохраняют своё состояние. -->
+        <TabItem Header="Циклы каршеринга (ЛР3)"><loops:LoopView/></TabItem>
     </TabControl>
 </Window>

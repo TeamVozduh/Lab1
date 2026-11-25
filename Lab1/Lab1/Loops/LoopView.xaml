@@ -1,0 +1,102 @@
+<UserControl x:Class="Lab1.Loops.LoopView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="900">
+    <UserControl.Resources>
+        <!-- Серый цвет означает, что проверка ещё не выполнялась; цвет дополнен подписями. -->
+        <Style x:Key="Indicator" TargetType="Ellipse">
+            <Setter Property="Width" Value="14"/><Setter Property="Height" Value="14"/>
+            <Setter Property="Fill" Value="LightGray"/><Setter Property="Margin" Value="8,0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="True"><Setter Property="Fill" Value="ForestGreen"/></DataTrigger>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="False"><Setter Property="Fill" Value="Crimson"/></DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="GroupBox"><Setter Property="Margin" Value="0,0,0,8"/><Setter Property="Padding" Value="8"/></Style>
+        <Style x:Key="Formula" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Consolas"/><Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="IsReadOnly" Value="True"/><Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Padding" Value="6"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid Margin="12">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel Margin="0,0,0,8">
+            <TextBlock Text="Циклы под микроскопом · статистика каршеринга" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock Text="a[i] — пробег завершённой поездки в км; j — число обработанных поездок; res — накопленный результат." TextWrapping="Wrap"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="320"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <GroupBox Header="Данные и режим">
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" DisplayMemberPath="Title" IsEnabled="{Binding CanEdit}" Margin="0,0,0,8"/>
+                            <UniformGrid Columns="2" IsEnabled="{Binding CanEdit}">
+                                <TextBlock Text="Длина n (0…1000)" VerticalAlignment="Center"/><TextBox Text="{Binding Length, UpdateSourceTrigger=PropertyChanged}" Margin="2"/>
+                                <TextBlock Text="Минимальный пробег" VerticalAlignment="Center"/><TextBox Text="{Binding Minimum, UpdateSourceTrigger=PropertyChanged}" Margin="2"/>
+                                <TextBlock Text="Максимальный пробег" VerticalAlignment="Center"/><TextBox Text="{Binding Maximum, UpdateSourceTrigger=PropertyChanged}" Margin="2"/>
+                                <TextBlock Text="Порог T, км" VerticalAlignment="Center"/><TextBox Text="{Binding Threshold, UpdateSourceTrigger=PropertyChanged}" Margin="2"/>
+                            </UniformGrid>
+                            <WrapPanel Margin="0,8,0,8"><Button Content="Сгенерировать" Command="{Binding GenerateCommand}" Margin="0,0,6,0"/><Button Content="Демо" Command="{Binding DemoCommand}"/></WrapPanel>
+                            <!-- Массив не меняется при обходе; жёлтым отмечаем прочитанную на последнем шаге ячейку. -->
+                            <DataGrid x:Name="TripsGrid" ItemsSource="{Binding Trips}" AutoGenerateColumns="False" Height="210"
+                                      CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" IsReadOnly="{Binding IsRunning}"
+                                      PreviewKeyDown="TripsGrid_PreviewKeyDown" CellEditEnding="TripsGrid_CellEditEnding" Validation.Error="TripsGrid_ValidationError">
+                                <DataGrid.RowStyle><Style TargetType="DataGridRow"><Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsProcessed}" Value="True"><Setter Property="Background" Value="#E6F4EA"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding IsChanged}" Value="True"><Setter Property="Background" Value="#FEF3C7"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True"><Setter Property="Background" Value="#DBEAFE"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger>
+                                </Style.Triggers></Style></DataGrid.RowStyle>
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="i" Binding="{Binding Index}" IsReadOnly="True" Width="45"/>
+                                    <DataGridTextColumn Header="a[i], км" Binding="{Binding Distance, ValidatesOnExceptions=True, NotifyOnValidationError=True}" Width="*"/>
+                                    <DataGridCheckBoxColumn Header="i = j" Binding="{Binding IsCurrent}" IsReadOnly="True" Width="55"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="Синий — текущий j; жёлтый — прочитано за шаг; зелёный — обработано. Двойной щелчок по пробегу — правка." TextWrapping="Wrap" FontSize="11" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Исполнение">
+                        <StackPanel>
+                            <WrapPanel><Button Content="Инициализировать" Command="{Binding ResetCommand}" Margin="0,0,6,6"/>
+                                <Button Content="Шаг" Command="{Binding StepCommand}" Margin="0,0,6,6"/>
+                                <Button Content="Пуск" Command="{Binding RunCommand}" Margin="0,0,6,6"/>
+                                <Button Content="Пауза" Command="{Binding PauseCommand}" Margin="0,0,6,6"/>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding StateText}" FontFamily="Consolas" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding StateExplanation}" TextWrapping="Wrap" Margin="0,5"/>
+                            <WrapPanel><TextBlock Text="Inv до"/><Ellipse Style="{StaticResource Indicator}" Tag="{Binding InvariantBefore}"/>
+                                <TextBlock Text="Inv после"/><Ellipse Style="{StaticResource Indicator}" Tag="{Binding InvariantAfter}"/>
+                                <TextBlock Text="Post"/><Ellipse Style="{StaticResource Indicator}" Tag="{Binding Post}"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </ScrollViewer>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <GroupBox Header="Инвариант и вариант">
+                    <StackPanel>
+                        <TextBlock Text="Инвариант словами"/>
+                        <TextBox Text="{Binding InvariantWords, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" TextWrapping="Wrap" Margin="0,3,0,6"/>
+                        <TextBlock Text="Инвариант — формула в одну строку"/>
+                        <TextBox Text="{Binding InvariantFormula, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" FontFamily="Consolas" Margin="0,3,0,6"/>
+                        <TextBlock Text="item(k) = a[k]; sum(k) — сумма a[0..k); count(k) — число a[i] &gt; T при i &lt; k; maximum(k) — максимум a[0..k)." TextWrapping="Wrap" FontSize="11"/>
+                        <DockPanel Margin="0,8,0,0"><TextBlock Text="t = " VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding VariantFormula, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEdit}" Width="120" DockPanel.Dock="Left"/>
+                            <TextBlock Text="Целое t ≥ 0; после шага 0 ≤ t′ &lt; t" VerticalAlignment="Center" Margin="10,0"/>
+                        </DockPanel>
+                        <ProgressBar Minimum="0" Maximum="{Binding VariantMaximum}" Value="{Binding VariantValue, Mode=OneWay}" Height="12" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+                <TabControl Grid.Row="1">
+                    <TabItem Header="Сохранение wp"><TextBox Text="{Binding WpText, Mode=OneWay}" Style="{StaticResource Formula}"/></TabItem>
+                    <TabItem Header="Четыре условия"><TextBox Text="{Binding ProofText, Mode=OneWay}" Style="{StaticResource Formula}"/></TabItem>
+                    <TabItem Header="Журнал шагов"><TextBox Text="{Binding Trace, Mode=OneWay}" Style="{StaticResource Formula}"/></TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+        <Border Grid.Row="2" Background="#EFF6FF" Padding="8" Margin="0,8,0,0"><TextBlock Text="{Binding Status}" TextWrapping="Wrap"/></Border>
+    </Grid>
+</UserControl>
