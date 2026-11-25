@@ -100,6 +100,14 @@ internal sealed class WpParser
         return result;
     }
 
+    /// <summary>Разбирает вариант-функцию, не допуская лишнего текста после выражения.</summary>
+    public ArithmeticExpression ParseArithmetic()
+    {
+        var result = ParseAddSubtract();
+        Expect(TokenKind.End, "После выражения обнаружен лишний текст");
+        return result;
+    }
+
     /// <summary>Reads semicolon-separated statements up to a closing brace or end of input.</summary>
     private List<Statement> ParseSequence(TokenKind end)
     {
@@ -256,7 +264,7 @@ internal sealed class WpParser
             var name = Advance();
             if (!Match(TokenKind.LeftParen)) return new VariableExpression(name.Text);
 
-            if (name.Text is not ("abs" or "sqrt"))
+            if (name.Text is not ("abs" or "sqrt" or "item" or "sum" or "count" or "maximum"))
                 throw new WpParseException($"Функция {name.Text} не поддерживается", name.Position);
             var argument = ParseAddSubtract();
             Expect(TokenKind.RightParen, "Не закрыта скобка вызова функции");

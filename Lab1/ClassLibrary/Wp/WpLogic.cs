@@ -28,6 +28,13 @@ internal static class WpLogic
             And(And(Defined(binary.Left), Defined(binary.Right)),
                 Compare(binary.Right, ComparisonOperator.NotEqual, new NumberExpression(0))),
         ArithmeticBinaryExpression binary => And(Defined(binary.Left), Defined(binary.Right)),
+        // Массив a и его длина n неизменны внутри цикла. Границы доступа входят в Def.
+        FunctionExpression function when function.Name is "item" or "sum" or "count" or "maximum" =>
+            And(Defined(function.Argument), And(
+                Compare(function.Argument, ComparisonOperator.GreaterOrEqual,
+                    new NumberExpression(function.Name == "maximum" ? 1 : 0)),
+                Compare(function.Argument, function.Name == "item" ? ComparisonOperator.Less : ComparisonOperator.LessOrEqual,
+                    new VariableExpression("n")))),
         FunctionExpression function when function.Name == "sqrt" =>
             And(Defined(function.Argument),
                 Compare(function.Argument, ComparisonOperator.GreaterOrEqual, new NumberExpression(0))),
@@ -490,6 +497,14 @@ internal static class WpLogic
         NegativeExpression negative => "отрицательное значение (" + DescribeArithmetic(negative.Operand) + ")",
         FunctionExpression { Name: "abs" } function => "модуль (" + DescribeArithmetic(function.Argument) + ")",
         FunctionExpression { Name: "sqrt" } function => "квадратный корень из (" + DescribeArithmetic(function.Argument) + ")",
+        FunctionExpression function => function.Name switch
+        {
+            "item" => "пробег поездки с индексом «" + Format(function.Argument) + "»",
+            "sum" => "сумма пробегов первых «" + Format(function.Argument) + "» поездок",
+            "count" => "число первых «" + Format(function.Argument) + "» поездок с пробегом строго выше T",
+            "maximum" => "максимальный пробег первых «" + Format(function.Argument) + "» поездок",
+            _ => throw new InvalidOperationException("Неизвестная функция")
+        },
         ArithmeticBinaryExpression
         {
             Left: ArithmeticBinaryExpression
